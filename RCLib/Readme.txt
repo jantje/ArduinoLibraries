@@ -1,5 +1,3 @@
-This is a repository where I plan to base my own libraries.
-You are free to use them if you mention the source and potential other sources used to create the library
 
 RCLib
 Is a library that is build to read the RC signal based on interrupts.
