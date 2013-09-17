@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<html>
+<head>
+<title>Arduino control center</title>
+<link href="tabs.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">  
+
+function loadValues()   
+{	
+  var xmlhttp; 
+  if (window.XMLHttpRequest) {xmlhttp=new XMLHttpRequest(); } 
+  else { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");} 
+  xmlhttp.onreadystatechange=function() 
+    {
+      try
+        {
+//          if ( xmlhttp.readyState==4 && xmlhttp.status>=400)
+//            {
+//              setTimeout("loadValues();",1000);
+//            }
+       
+          if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+              var lineContent = xmlhttp.responseText.split(";");
+              for ( curValue =1; curValue  <(lineContent.length-1) ; curValue ++)
+                {
+                  var curelement = document.getElementById( curValue );
+                  if (curelement == null)
+	            {
+                      document.getElementById( "t_" + curValue ).value=lineContent[curValue];
+                    }
+                  else
+                    {
+                      curelement.innerHTML=lineContent[curValue];
+                    }
+                }
+//              setTimeout("loadValues();",1000);
+            }
+         }
+       catch(err)
+         {
+//           setTimeout("loadValue();",1000);
+         }
+      }
+    xmlhttp.open("GET","/cgi-bin/robot/value" ,true);
+    xmlhttp.send();
+  }
+
+function UpdateValue(Param,name)
+{
+	SendCommand("GET","/cgi-bin/robot/set.cgi?" + name  + "=" + document.getElementById( "t_" + Param  ).value ,true);
+}
+function SendCommand(Method, Command)
+{
+	var xmlhttp;
+	if (window.XMLHttpRequest) {xmlhttp=new XMLHttpRequest(); }
+	else { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");}
+	xmlhttp.open(Method, Command);
+	xmlhttp.send();
+}
+window.onload = function() {
+  setInterval("loadValues()",1000);
+};
+    
+</script></head>
+<body >
+<table>
+<tr><td><h1>SKETCHNAME</h1><td>
+<td><button type="button" onclick="SendCommand('GET','/cgi-bin/robot/do.cgi?RESET');">Reset Arduino</button></td>
+<td><button type="button" onclick="SendCommand('GET','/cgi-bin/robot/do.cgi?SAVE');">Save</button></td>
+<td><button type="button" onclick="SendCommand('GET','/cgi-bin/robot/do.cgi?LOAD');">Load</button></td>
+<td><button type="button" onclick="SendCommand('GET','/cgi-bin/robot/do.cgi?DUMP');">Sync page with Arduino</button></td>
+<td><button type="button" onclick="SendCommand('GET','/cgi-bin/robot/startReadingArduino.sh');">restart webserver</button></td></tr>
+</table>

@@ -1,0 +1,355 @@
+#!/usr/bin/lua
+-- Lua utilities for CGI web use
+
+-- Written by Nick Gammon - May 2006.
+
+--[[
+Copyright © 2006 Nick Gammon.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy 
+of this software and associated documentation files (the "Software"), to deal 
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is 
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.    
+
+The software is provided "as is", without warranty of any kind, express or 
+implied, including but not limited to the warranties of merchantability, 
+fitness for a particular purpose and noninfringement. In no event shall the 
+authors or copyright holders be liable for any claim, damages or other 
+liability, whether in an action of contract, tort or otherwise, arising from, 
+out of or in connection with the software or the use or other dealings in the 
+software. 
+--]]
+
+-- global flags
+
+done_http_header = false  -- have we sent the HTTP header yet?
+done_html_header = false  -- have we sent the HTML header yet?
+done_html_footer = false  -- have we sent the HTTP footer yet?
+
+-- split a string with delimiters into a table (reverse of table.concat)
+function split (s, delim)
+
+  local t = {}  -- results table
+
+  if s then   
+    assert (type (delim) == "string" and string.len (delim) > 0,
+            "bad delimiter")
+  
+    local start = 1
+    local pos
+  
+    -- find each instance of a string followed by the delimiter
+  
+    repeat
+      pos = string.find (s, delim, start, true) -- plain find
+  
+      if pos then
+        table.insert (t, string.sub (s, start, pos - 1))
+        start = pos + string.len (delim)
+      end
+    until not pos
+  
+    -- insert final one (after last delimiter)
+  
+    table.insert (t, string.sub (s, start))
+  end -- not nil string
+  
+  return t
+ 
+end -- function split
+
+-- trim leading and trailing spaces from a string
+function trim (s)
+  return (string.gsub (string.gsub (s, "%s+$", ""), "^%s+", ""))
+end -- trim
+
+mysql_replacements = { 
+   ["\0"] = "\\0",
+   ["\n"] = "\\n",
+   ["\r"] = "\\r",
+   ["\'"] = "\\\'",
+   ["\""] = "\\\"",
+   ["\026"] = "\\Z",
+   ["\b"] = "\\b",
+   ["\t"] = "\\t",
+   }
+
+-- Fix SQL text by converting various characters to the format MySQL 
+--  will recognise in its string processor
+--
+-- Note that not all the escapes are necessary for internal SQL use, 
+-- however if data is being dumped to disk (eg. as SQL statements) 
+-- then it is handy for have things like \n and \r made more readable
+--   See: http://dev.mysql.com/doc/refman/5.1/en/string-syntax.html
+
+function fixsql (s)
+
+  return (string.gsub (tostring (s), "[%z\n\r\'\"\026\b\t]", 
+    function (str)
+      return mysql_replacements [str] or str
+    end ))
+
+end -- fixsql
+
+html_replacements = { 
+   ["<"] = "&lt;",
+   [">"] = "&gt;",
+   ["&"] = "&amp;",
+   ["\""] = "&quot;",
+   }
+
+-- fix text so that < > and & are escaped
+function fixhtml (s)
+
+  return (string.gsub (tostring (s), "[<>&\"]", 
+    function (str)
+      return html_replacements [str] or str
+    end ))
+
+end -- fixhtml
+
+-- convert + to space
+-- convert %xx where xx is hex characters, to the equivalent byte
+function urldecode (s)
+  return (string.gsub (string.gsub (s, "+", " "), 
+          "%%(%x%x)", 
+         function (str)
+          return string.char (tonumber (str, 16))
+         end ))
+end -- function urldecode
+
+-- reverse of urldecode - converts characters that are not alphanumeric
+--  into the form %xx (for use in cookies etc.)
+function urlencode (s)
+ return (string.gsub (s, "%W", 
+        function (str)
+          return string.format ("%%%02X", string.byte (str))
+        end  ))
+end -- function urlencode
+        
+-- process a single key=value pair from a GET line (or cookie, etc.)
+function assemble_value (s, t)
+  assert (type (t) == "table")
+  local _, _, key, value = string.find (s, "(.-)=(.+)")
+
+  if key then
+    t [trim (urldecode (key))] = trim (urldecode (value))
+  end -- if we had key=value
+
+end -- assemble_value
+
+-- output a Lua table as an HTML table
+function show_table (t)
+  local k, v
+  assert (type (t) == "table")
+  print "<table border=1 cellpadding=3>"
+  for k, v in pairs (t) do
+    print "<tr>"
+    print ("<th align=left >" .. fixhtml (k) .. "</th>" .. 
+           "<td align=left >" .. fixhtml (v) .. "</td>")
+    print "</tr>"
+  end -- for
+  print "</table>"
+end -- show_table
+
+
+-- get query data, cookie data, post data
+function get_user_input ()
+local _, v
+
+  -- query data (stuff after the ? )
+ 
+  local get_data = {}
+  
+  for _, v in ipairs (split (os.getenv ("QUERY_STRING"), "&")) do
+    assemble_value (v, get_data)
+  end -- for
+  
+  -- cookies
+ 
+  local cookie_data = {}
+  
+  for _, v in ipairs (split (os.getenv ("HTTP_COOKIE"), ";")) do
+    assemble_value (v, cookie_data)
+  end -- for
+  
+  -- posted data (from a form)
+  
+  local post_data = {}
+
+  --local post_length = tonumber (os.getenv ("CONTENT_LENGTH")) or 0
+  --if os.getenv ("REQUEST_METHOD") == "POST" and post_length > 0 then
+  --  for _, v in ipairs (split (io.read (post_length), "&")) do
+  --    assemble_value (v, post_data)
+  --  end -- for
+  --end -- if post
+  
+ return get_data, cookie_data, post_data, os.getenv ("REQUEST_METHOD")
+ 
+ end -- function get_user_input
+ 
+ -- show a standard HTTP header with optional cookies
+function show_http_header (cookies)
+
+  assert (not done_http_header, "Too many HTTP headers")
+  
+  print ("Content-Type: text/html; charset=iso-8859-1")
+  print ("X-Powered-By: cgiutils.lua written by Nick Gammon")
+  
+  -- output a Set-Cookie line for each cookie in the table
+  if cookies then
+    assert (type (cookies) == "table")
+    for k, v in pairs (cookies) do
+      print ("Set-Cookie: " .. urlencode (k) .. "=" .. urlencode (v))
+    end -- for each cookie
+  end -- we have cookies
+
+  print ("")  -- blank line separates header from body
+  done_http_header = true
+
+end -- function show_http_header 
+
+-- show a standard HTML header with optional title, and other free-format things
+--  the "other" stuff could be things like stylesheets, links, etc.
+
+function show_html_header (title, other)
+
+  assert (not done_html_header, "Too many HTML headers")
+
+  if not done_http_header then
+    show_http_header ()
+  end 
+
+  print ('<?xml version="1.0" encoding="iso-8859-1"?>')
+  print ('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">')
+  print ('<html lang="en">')
+  print ('<head>')
+  if title then
+    print ('<title>' .. fixhtml (title) .. '</title>')
+  end -- having title
+  if other then  
+    print (other)
+  end -- having other stuff
+  print ('</head>')
+  print ('<body>')
+
+  done_html_header = true
+end -- function show_html_header
+
+-- wrap up with an HTML footer
+function show_html_footer ()
+
+  assert (not done_html_footer, "Too many HTML footers")
+
+  print ('</body>')
+  print ('</html>')
+  done_html_footer = true
+end -- function show_html_footer
+
+-- helper function to show an error in inverse bold coloured text
+function show_error (theerror)
+ 
+  if not done_html_header then
+    show_html_header ("Error on web page")
+  end 
+ 
+  local colour_error_text = "#FFFFFF"  -- white
+  local colour_error_bgnd = "#A52A2A"  -- brown
+  local family = "sans-serif"
+  local size = "150%"
+  local weight = "bolder"
+  
+  -- style string for the error message
+  local style = string.format (
+                'color: %s; ' ..
+                'background: %s; ' ..
+                'font-family: %s; ' ..
+                'font-size: %s; ' ..
+                'font-weight: %s;',
+                
+                  colour_error_text,
+                  colour_error_bgnd,
+                  family,
+                  size,
+                  weight)
+  
+  -- show error in desired style
+  print (string.format ('<p><span style="%s">&nbsp;%s&nbsp;</span></p>',
+         style,
+         fixhtml (theerror)))
+          
+end -- end of show_error
+  
+-- Call this for things like script errors - it shows the error and exits
+function major_problem (why)
+
+  if not done_html_header then
+    show_html_header ("Script error on web page")
+  end 
+  
+  print ("<h3>We apologise that there has been a problem with the web server ...</h3>\n")
+  print ("<hr>")
+  print ("<code><pre>" .. fixhtml (why) .. "</pre></code>")
+  print ("<p>Error occurred on " .. os.date ("%#x at %X") .. "</p>\n")
+  print ("<hr>")
+  
+  show_html_footer ()
+  
+  os.exit (1)  -- let's stop while we are ahead :)
+end -- function major_problem
+ 
+-- this function is run in protected mode in case the script page has errors
+function load_page ()
+
+  -- get local locale
+  
+  os.setlocale ("", "time")
+  
+  -- get GET, COOKIE, POST data, and request method
+  
+  get_data, cookie_data, post_data, request_method  = get_user_input ()
+ 
+  local scriptname = os.getenv ("PATH_INFO")
+  
+  -- validity check on requested filename
+  if not scriptname or
+         string.find (scriptname, "..", 1, true) or
+         not string.find (scriptname, "/[%a%d_%-]+%.lua")
+         then
+    return show_error ("That URL is not valid" .. scriptname)
+  end -- if
+     
+  scriptname = "./cgi-bin/robot" .. scriptname  -- make local path
+  
+  -- check page exists, to avoid annoying user with Lua traceback message
+  local f, err1, err2 = io.open (scriptname)
+   
+  if f then
+    f:close ()  -- we found the file, close it now
+  else
+    return show_error ("The requested page does not exist" .. scriptname )
+  end -- if
+      
+  -- run the file specified in the rest of the URL
+  dofile (scriptname)
+  
+end -- load_page
+
+
+-- main code starts here
+
+ok, error = xpcall (load_page, _TRACEBACK)
+
+if not ok then
+  major_problem (error)
+end -- error in page
+
+-- ensure footer shown
+if done_html_header and not done_html_footer then
+  show_html_footer ()
+end -- if

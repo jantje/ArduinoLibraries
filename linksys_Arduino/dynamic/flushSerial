@@ -1,0 +1,5 @@
+#!/bin/ash
+while read -t 1 line 
+do
+ echo $line
+done
