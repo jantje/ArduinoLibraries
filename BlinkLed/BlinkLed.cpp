@@ -34,10 +34,10 @@ void BlinkLed::loop()
   // difference between the current time and last time you blinked
   // the LED is bigger than the interval at which you want to
   // blink the LED.
-	uint32_t myInterval =myOffInterval;
+	uint32_t myInterval =myOnInterval;
   if (myLedState == LOW)
   {
-  	myInterval =myOnInterval;
+  	myInterval = myOffInterval;
   }
 
 
