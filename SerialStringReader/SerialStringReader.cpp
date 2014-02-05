@@ -19,10 +19,10 @@ void SerialStringReader::setup()
 
 void SerialStringReader::loop()
 {
-   while( (!myHasMessage) && (Serial.available() > 0))
+   while( (!myHasMessage) && (SerialInput->available() > 0))
    {
 
-      char aChar = Serial.read();
+      char aChar = SerialInput->read();
       if((aChar == '\n') || (aChar == '\r'))
       {
       	myHasMessage=myMessageIndex; //this way if \n and \r are send we do not get 2 messages
@@ -35,9 +35,17 @@ void SerialStringReader::loop()
       	myMessage[++myMessageIndex] = 0; // Keep the string NULL terminated
       	if (myMessageIndex>= MAX_MESSAGE_LENGTH )
       		{
-      		Serial.print(F("Message to long. Longest allowed message is "));
-      		Serial.println(sizeof(myMessage)-1);
+      		SerialOutput->print(F("Message to long. Max: "));
+      		SerialOutput->println(sizeof(myMessage)-1);
       		}
       }
    }
+}
+
+SerialStringReader::SerialStringReader()
+{
+	myMessageIndex=0;
+	myMessage[0]=0;
+	myHasMessage=false;
+
 }

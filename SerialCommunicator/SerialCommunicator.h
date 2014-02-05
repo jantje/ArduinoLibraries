@@ -31,41 +31,48 @@
 
 class SerialCommunicator: public SerialDataInterface
 {
-	private:
+	protected:
+		uint8_t myLogLevel;         // The Log Level used
+		uint16_t myArduinoResetCount; // the number of times Arduino is reset
 		SerialDataInterface* myData[2];  //The objects containing the data elements to modify
 		SerialStringReader myStringSerial; //the class to read string from the serial monitor
-		FieldData myFields[7];        //object to describe the the fields for serial modification
-
-    uint8_t myResetPin;  //The pin used to rest Arduino
+		/**
+		 * Call this method when a message has been received.
+		 * The message will be parsed in the next call to Loop.
+		 */
+		virtual void setReceivedMessage(const char* newMessage);
+protected:
+		FieldData myFields[8];        //object to describe the the fields for serial modification
+	private:
+		uint8_t myResetPin;  //The pin used to rest Arduino
 		uint16_t myLogDelay;        //The time to wait after a log has been done
 		uint16_t myForceRestartDelay; //The delay before a force restart is actioned
 		uint32_t myLoopCounter;  //Counts the number of times loop has been called
 		uint16_t myAveragebetweenLoops; //The average millis between loop counts
 		uint16_t myMaxbetweenLoops; //The maximum millis between loop counts
 
-		void SaveDataToEEPROM(); //Reads data in the variables and stores it in the EEPROM memory
-		void ReadDataFromEEPROM(); //Reads data stored in the EEPROM and sets its values to the variables
-		void DumpDataInEEPROM(Stream& stream);  //dumps all the set commands
+		void DumpSavedData();  //dumps all the set commands
 		void ForceHardReset();       //Forces the Arduino to restart so the boot loader can load a new sketch
 
 		void dumpAllFields(); // Dump all the values and settings of all the fields in a readable format
 
-		//Below are some visitor methods
-		bool visitAllFields(FieldDataVisitor visitorFunc) const;
-		bool visitAllFields(FieldDataVisitor2 visitorFunc, Stream& stream) const;
-		bool visitAllFields(FieldDataVisitor3 visitorFunc);
-		bool visitAllClasses(ClassDataVisitor visitorFunc) const;
+
+
 
 	protected:
-		void logValue(Stream& stream);          //log all the values
-		void logHeader(Stream& stream);
-		uint8_t myLogLevel;         // The Log Level used
-		uint16_t myArduinoResetCount; // the number of times Arduino is reset
+		void logValue();          //log all the values
+		void logHeader();
+		//Below are some visitor methods
+		//bool visitAllFields(FieldDataVisitor visitorFunc) const;
+		bool visitAllFields(FieldDataVisitor3 visitorFunc);
+		bool visitAllClasses(ClassDataVisitor visitorFunc) const;
 
 	public:
 
 		SerialCommunicator(uint8_t resetPin);
-		virtual ~SerialCommunicator(){;}
+		virtual ~SerialCommunicator()
+		{
+		}
 		/**
 		 * Initializes the class.
 		 * Call this method in your setup()
@@ -75,11 +82,6 @@ class SerialCommunicator: public SerialDataInterface
 		 * Add the Loop() in your loop();
 		 */
 		void loop();
-		/**
-		 * Call this method when a message has been received.
-		 * The message will be parsed in the next call to Loop.
-		 */
-		virtual void setReceivedMessage(const char* newMessage,bool first);
 
 };
 

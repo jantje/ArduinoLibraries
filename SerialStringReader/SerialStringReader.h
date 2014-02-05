@@ -2,7 +2,7 @@
  * SmartSerial.h
  *
  *  Created on: Nov 28, 2012
- *      Author: jann baeyens aka Jantje
+ *      Author: jan baeyens aka Jantje
  */
 
 #ifndef SERIALSTRINGREADER_H_
@@ -12,17 +12,20 @@
 /* modify the line below if you want less memory used by the lib
  * and increase if you need a longer command line.
  */
-#define MAX_MESSAGE_LENGTH 100
+#define MAX_MESSAGE_LENGTH 50
 /**
  * A class to read strings from the serial communication.
- * This class read line by line.
+ * This class reads line by line.
  * If a message is read (meaning a end of line is read) no more characters
  * are read until the message has been received (by calling get message)
  * The string returned is the actual memory buffer used to read the serial monitor.
  * if you want to save the value you should make a copy.
  *
- * put Setup(); in your setup code and Loop(); in your loop
+ * look at the example on how to use this
  */
+		extern Stream *SerialInput;
+		extern Stream *SerialOutput;
+
 class SerialStringReader
 {
 	private:
@@ -32,6 +35,7 @@ class SerialStringReader
 
 
 	public:
+		SerialStringReader(		);
 		/**
 		 * Initializes the class. It does not initialize the serial communication
 		 * This is something you will have to do before calling this method
@@ -50,7 +54,7 @@ class SerialStringReader
 		 * GetMessage should only be called when MessageReceived returned true.
 		 * It resets the MessageReceived flag.
 		 * WARNING The value returned points to the same buffer as used by the class.
-		 *          If you want not keep the value for later reference you need to make a copy.
+		 * If you want to keep the value for later reference you need to make a copy.
 		 */
 		char * getMessage(){myHasMessage=false; return myMessage;};
 };

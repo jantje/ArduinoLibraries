@@ -1,6 +1,6 @@
 // Do not remove the include below
 #include "SerialStringReader.h"
-SerialStringReader mySerialReader;
+SerialStringReader mySerialReader(&Serial,&Serial);
 
 
 //The setup function is called once at startup of the sketch

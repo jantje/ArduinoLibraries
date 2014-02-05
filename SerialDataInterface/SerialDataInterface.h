@@ -8,16 +8,40 @@
 #ifndef SERIALDATAINTERFACE_H_
 #define SERIALDATAINTERFACE_H_
 #include "Arduino.h"
-#ifdef GPSLOCATION
+#ifdef I_USE_GPS
 #include "DataTypes.h"
 #endif
-#ifdef DATETIME
-#include "RTClib.h"
-#endif
+
+
+
+
+extern Stream *SerialInput;
+extern Stream *SerialOutput;
+const char * makeChildName(const char* Name, const char* subName);
+
+
+extern const __FlashStringHelper *LOOPDURATION;
+extern const __FlashStringHelper *MULTIPLIER;
+extern const __FlashStringHelper *PINVALUE;
+extern const __FlashStringHelper *PIN;
+extern const char ERROR[];
+extern const char NAME_NOT_FOUND[];
+extern const char NAME_TO_LONG[];
+extern const char DONE[];
 
 typedef enum
 {
-	_uint8_t, _int8_t, _uint16_t, _int16_t, _uint32_t, _int32_t, _char, _pcchar, _GPSLocation, _String, _DateTime, _bool, _FlashStringHelper, _LastDataType
+	_uint8_t, _int8_t, _uint16_t, _int16_t, _uint32_t, _int32_t, _char, _pcchar,	_bool, _FlashStringHelper,
+#ifdef I_USE_GPS
+	_GPSLocation,
+#endif
+#ifdef I_USE_STRING
+	_String,
+#endif
+#ifdef I_USE_DATETIME
+	_DateTime,
+#endif
+	_LastDataType
 } DataTypes;
 //extern const char* DataTypesNames[LastDataType];
 #define    MOD_WRITE 			1  //Allow writes to this field
@@ -32,7 +56,7 @@ class FieldInfo
 		uint8_t myModFlag;
 		const FieldInfo & operator=(const FieldInfo &fieldInfo);
 		bool operator==(const FieldInfo &fieldInfo) const;
-		void dump(Stream& stream) const;
+		void dump() const;
 
 };
 
@@ -49,50 +73,143 @@ class FieldData: public FieldInfo
 				int16_t* pint16_t;
 				char* pchar;
 				const char ** ppcchar;
-				String* pString;
 				bool* pbool;
 				const __FlashStringHelper** ppFlashStringHelper;
-#ifdef GPSLOCATION
+#ifdef I_USE_STRING
+				String* pString;
+#endif
+#ifdef I_USE_GPS
 				GPSLocation* pGPSLocation;
 #endif
-#ifdef DATETIME
+#ifdef I_USE_DATETIME
 				DateTime* pDateTime;
 #endif
 
 		} myValue;
-		void dump(Stream& stream) const;  //dumps the content to a stream
-		void dumpValue(Stream& stream) const; //dumps the value to a stream
+		void dump() const;  //dumps the content to a stream
+		//void dumpValue() const; //dumps the value to a stream
 		bool setValue(const char * strValue);
+		const char * getValue(char * buffer,uint8_t bufferSize)const; // get a string representation of the value
 
 		//All typed generators to easily describe the fields
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, uint8_t* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, int8_t* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, uint16_t* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, uint32_t* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, int32_t* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, int16_t* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, char* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, const char ** data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, String* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, bool* data);
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, const __FlashStringHelper ** data);
-
-#ifdef GPSLOCATION
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, GPSLocation* data);
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, uint8_t* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _uint8_t;
+			myModFlag = modFlag;
+			myValue.puint8_t = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, int8_t* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _int8_t;
+			myModFlag = modFlag;
+			myValue.pint8_t = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, uint16_t* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _uint16_t;
+			myModFlag = modFlag;
+			myValue.puint16_t = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, uint32_t* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _uint32_t;
+			myModFlag = modFlag;
+			myValue.puint32_t = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, int32_t* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _int32_t;
+			myModFlag = modFlag;
+			myValue.pint32_t = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, int16_t* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _int16_t;
+			myModFlag = modFlag;
+			myValue.pint16_t = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, char* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _char;
+			myModFlag = modFlag;
+			myValue.pchar = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, const char ** data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _pcchar;
+			myModFlag = modFlag;
+			myValue.ppcchar = data;
+		}
+#ifdef I_USE_STRING
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, String* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _String;
+			myModFlag = modFlag;
+			myValue.pString = data;
+		}
 #endif
-#ifdef DATETIME
-		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, DateTime* data);
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, bool* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _bool;
+			myModFlag = modFlag;
+			myValue.pbool = data;
+		}
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, const __FlashStringHelper ** data)
+			{
+				myClassName=ClassName;
+				myFieldName = FieldName;
+				myType = _FlashStringHelper;
+				myModFlag = modFlag;
+				myValue.ppFlashStringHelper = data;
+			}
+
+
+
+#ifdef I_USE_GPS
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, GPSLocation* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _GPSLocation;
+			myModFlag = modFlag;
+			myValue.pGPSLocation = data;
+		}
 #endif
-
-
+#ifdef I_USE_DATETIME
+		void set(const char * ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, DateTime* data)
+		{
+			myClassName=ClassName;
+			myFieldName = FieldName;
+			myType = _DateTime;
+			myModFlag = modFlag;
+			myValue.pDateTime = data;
+		}
+#endif
 
 };
 
 class SerialDataInterface;
-typedef bool (*FieldDataVisitor)(const FieldData& fieldData);
-typedef bool (*FieldDataVisitor2)(const FieldData& fieldData,Stream& stream);
-typedef bool (*FieldDataVisitor3)(const FieldData& fieldData, const uint8_t field, SerialDataInterface* theClass);
-
+typedef bool (*FieldDataVisitor3)( FieldData& fieldData, const uint8_t field, SerialDataInterface* theClass);
 typedef bool (*ClassDataVisitor)(const SerialDataInterface& data);
 
 class SerialDataInterface
@@ -134,7 +251,7 @@ class SerialDataInterface
 			return myNumFields;
 		}
 		;
-		const FieldData getFieldData(const uint8_t item) const;
+		FieldData getFieldData(const uint8_t item) const;
 
 		/**
 		 * Overload this messsage if you want to do something smart when a value is set.
@@ -146,14 +263,12 @@ class SerialDataInterface
 		void setField(const uint8_t field, const char *strValue);
 
 		//visiting methods
-		bool visitAllFields(FieldDataVisitor visitorFunc) const;
-		bool visitAllFields(FieldDataVisitor2 visitorFunc,Stream& stream) const;
 		bool visitAllFields(FieldDataVisitor3 visitorFunc);
 		bool visitAllClasses(ClassDataVisitor visitorFunc) const;
 
 
 };
 
-const char * makeChildName(const char* Name, const char* subName);
+
 
 #endif /* SERIALDATAINTERFACE_H_ */
