@@ -12,7 +12,7 @@
 /* modify the line below if you want less memory used by the lib
  * and increase if you need a longer command line.
  */
-#define MAX_MESSAGE_LENGTH 50
+#define MAX_MESSAGE_LENGTH (uint8_t)50
 /**
  * A class to read strings from the serial communication.
  * This class reads line by line.
@@ -41,7 +41,7 @@ class SerialStringReader
 		 * This is something you will have to do before calling this method
 		 * Call this method in your setup() after setting up the serial monitor
 		 */
-		void setup();
+		void setup(){};
 		/**
 		 * Add the Loop() in your loop();
 		 */

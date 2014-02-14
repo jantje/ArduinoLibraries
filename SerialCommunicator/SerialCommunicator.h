@@ -8,9 +8,8 @@
 #ifndef SERIALCOMMUNICATOR_H_
 #define SERIALCOMMUNICATOR_H_
 #include "Arduino.h"
-
-#include "SerialDataInterface.h"
 #include "SerialStringReader.h"
+#include "FieldData.h"
 
 /**
  * Messages to Arduino are
@@ -27,66 +26,57 @@
  * LOG VALUE;[data]	Request to do log the data to disk
  */
 
-#define MAXFIELDNAME 30
 
-class SerialCommunicator: public SerialDataInterface
+class SerialCommunicator
 {
 	protected:
-		uint8_t myLogLevel;         // The Log Level used
-		uint16_t myArduinoResetCount; // the number of times Arduino is reset
-		SerialDataInterface* myData[2];  //The objects containing the data elements to modify
-		SerialStringReader myStringSerial; //the class to read string from the serial monitor
+		static uint8_t myLogLevel;         // The Log Level used
+		static uint16_t myArduinoResetCount; // the number of times Arduino is reset
+		static SerialStringReader myStringSerial; //the class to read string from the serial monitor
+		static uint16_t myLogDelay;        //The time to wait after a log has been done
+
+		static uint32_t myLoopCounter;  //Counts the number of times loop has been called
+		static uint16_t myAveragebetweenLoops; //The average millis between loop counts
+		static uint16_t myMaxbetweenLoops; //The maximum millis between loop counts
 		/**
 		 * Call this method when a message has been received.
 		 * The message will be parsed in the next call to Loop.
 		 */
-		virtual void setReceivedMessage(const char* newMessage);
-protected:
-		FieldData myFields[8];        //object to describe the the fields for serial modification
-	private:
-		uint8_t myResetPin;  //The pin used to rest Arduino
-		uint16_t myLogDelay;        //The time to wait after a log has been done
-		uint16_t myForceRestartDelay; //The delay before a force restart is actioned
-		uint32_t myLoopCounter;  //Counts the number of times loop has been called
-		uint16_t myAveragebetweenLoops; //The average millis between loop counts
-		uint16_t myMaxbetweenLoops; //The maximum millis between loop counts
+		static void setReceivedMessage(const char* newMessage);
+		static void logValue();
 
-		void DumpSavedData();  //dumps all the set commands
-		void ForceHardReset();       //Forces the Arduino to restart so the boot loader can load a new sketch
-
-		void dumpAllFields(); // Dump all the values and settings of all the fields in a readable format
+#ifdef I_USE_RESET
+		static uint8_t myResetPin;  //The pin used to rest Arduino
+		static void ForceHardReset();       //Forces the Arduino to restart so the boot loader can load a new sketch
+		static uint16_t myResetDelay; //The delay before a reset is actioned
+#endif
 
 
+		//void DumpSavedData();  //dumps all the set commands
 
-
-	protected:
-		void logValue();          //log all the values
-		void logHeader();
-		//Below are some visitor methods
-		//bool visitAllFields(FieldDataVisitor visitorFunc) const;
-		bool visitAllFields(FieldDataVisitor3 visitorFunc);
-		bool visitAllClasses(ClassDataVisitor visitorFunc) const;
+		static void dumpAllFields(); // Dump all the values and settings of all the fields in a readable format
 
 	public:
-
+#ifdef I_USE_RESET
 		SerialCommunicator(uint8_t resetPin);
-		virtual ~SerialCommunicator()
-		{
-		}
+#else
+		SerialCommunicator();
+#endif
 		/**
 		 * Initializes the class.
 		 * Call this method in your setup()
 		 */
-		void setup(SerialDataInterface* TheData);
+		static void serialRegister(const __FlashStringHelper* Name);
+		static void setup(){myStringSerial.setup();};
 		/**
 		 * Add the Loop() in your loop();
 		 */
-		void loop();
+		static void loop();
 
 };
 
 //extern const __FlashStringHelper * mySketchName;
-extern const char * mySketchName;
+extern const char  mySketchName[] PROGMEM;
 
 extern SerialCommunicator serialCommunicator;
 #endif /* SERIALCOMMUNICATOR_H_ */

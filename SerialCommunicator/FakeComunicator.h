@@ -12,7 +12,7 @@ class FakeComunicator
 {
 	public:
 
-		FakeComunicator(uint8_t resetPin){};
+		FakeComunicator(uint8_t resetPin=0){};
 		virtual ~FakeComunicator()
 		{
 		}
@@ -20,7 +20,8 @@ class FakeComunicator
 		 * Initializes the class.
 		 * Call this method in your setup()
 		 */
-		void setup(SerialDataInterface* TheData){};
+		void setup(){};
+		void serialRegister(const __FlashStringHelper* Name){};
 		/**
 		 * Add the Loop() in your loop();
 		 */

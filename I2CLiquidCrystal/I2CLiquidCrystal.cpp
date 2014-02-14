@@ -36,14 +36,15 @@
 #define WIRE_WRAPPER_PRINT_NUM(command,info1, info2) \
 		Wire.beginTransmission (myAddress);\
 		Wire.print(command);\
-  	size_t ret = Wire.println(info1,info2);\
+  	size_t ret = Wire.print(info1,info2);\
   	Wire.endTransmission();\
   	return ret
 
 
-LiquidCrystal::LiquidCrystal(uint8_t address) {	myAddress=address;};
-	  void LiquidCrystal::begin() { Wire.begin(myAddress); clear(); };
-	  void LiquidCrystal::init(){};
+//LiquidCrystal::LiquidCrystal(uint8_t address) {	myAddress=address;};
+//	  void LiquidCrystal::begin() { Wire.begin(myAddress); clear(); };
+	  //void LiquidCrystal::init(){};
+uint8_t LiquidCrystal::myAddress;
 
 	  void LiquidCrystal::clear() {WIRE_WRAPPER0(_clear);};
 	  void LiquidCrystal::home(){WIRE_WRAPPER0(_home);};
@@ -79,20 +80,20 @@ LiquidCrystal::LiquidCrystal(uint8_t address) {	myAddress=address;};
     size_t LiquidCrystal::print(double info1, int info2){WIRE_WRAPPER_PRINT_NUM(_print,info1,info2);};
     size_t LiquidCrystal::print(const Printable& info){WIRE_WRAPPER(_print,info);};
 
-    size_t LiquidCrystal::println(const __FlashStringHelper *info){WIRE_WRAPPER(_println,info);};
-#ifdef I_USE_STRING
-    size_t LiquidCrystal::println(const String &info){WIRE_WRAPPER(_println,info);};
-#endif
-    size_t LiquidCrystal::println(const char info[] ){WIRE_WRAPPER(_println,info);};
-    size_t LiquidCrystal::println(char info){WIRE_WRAPPER(_println,info);};
-    size_t LiquidCrystal::println(unsigned char info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
-    size_t LiquidCrystal::println(int info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
-    size_t LiquidCrystal::println(unsigned int info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
-    size_t LiquidCrystal::println(long info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
-    size_t LiquidCrystal::println(unsigned long info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
-    size_t LiquidCrystal::println(double info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
-    size_t LiquidCrystal::println(const Printable& info){WIRE_WRAPPER(_println,info);};
-    size_t LiquidCrystal::println(void){WIRE_WRAPPER0(_println);return 0;};
+//    size_t LiquidCrystal::println(const __FlashStringHelper *info){WIRE_WRAPPER(_println,info);};
+//#ifdef I_USE_STRING
+//    size_t LiquidCrystal::println(const String &info){WIRE_WRAPPER(_println,info);};
+//#endif
+//    size_t LiquidCrystal::println(const char info[] ){WIRE_WRAPPER(_println,info);};
+//    size_t LiquidCrystal::println(char info){WIRE_WRAPPER(_println,info);};
+//    size_t LiquidCrystal::println(unsigned char info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
+//    size_t LiquidCrystal::println(int info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
+//    size_t LiquidCrystal::println(unsigned int info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
+//    size_t LiquidCrystal::println(long info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
+//    size_t LiquidCrystal::println(unsigned long info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
+//    size_t LiquidCrystal::println(double info1, int info2){WIRE_WRAPPER_PRINT_NUM(_println,info1,info2);};
+//    size_t LiquidCrystal::println(const Printable& info){WIRE_WRAPPER(_println,info);};
+//    size_t LiquidCrystal::println(void){WIRE_WRAPPER0(_println);return 0;};
 
     void LiquidCrystal::setBackground(uint8_t red,uint8_t green, uint8_t blue){WIRE_WRAPPER3(_setBackground,red,green,blue);};
 

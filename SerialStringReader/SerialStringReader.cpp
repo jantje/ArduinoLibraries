@@ -9,25 +9,15 @@
 
 
 
-void SerialStringReader::setup()
-{
-	myMessageIndex=0;
-	myMessage[0]=0;
-	myHasMessage=false;
-
-}
-
 void SerialStringReader::loop()
 {
    while( (!myHasMessage) && (SerialInput->available() > 0))
    {
-
       char aChar = SerialInput->read();
       if((aChar == '\n') || (aChar == '\r'))
       {
       	myHasMessage=myMessageIndex; //this way if \n and \r are send we do not get 2 messages
       	myMessageIndex = 0;
-
       }
       else
       {
@@ -36,7 +26,9 @@ void SerialStringReader::loop()
       	if (myMessageIndex>= MAX_MESSAGE_LENGTH )
       		{
       		SerialOutput->print(F("Message to long. Max: "));
-      		SerialOutput->println(sizeof(myMessage)-1);
+      		SerialOutput->println(MAX_MESSAGE_LENGTH);
+      		SerialOutput->println(myMessage);
+      		myMessageIndex=0;
       		}
       }
    }
@@ -47,5 +39,4 @@ SerialStringReader::SerialStringReader()
 	myMessageIndex=0;
 	myMessage[0]=0;
 	myHasMessage=false;
-
 }
