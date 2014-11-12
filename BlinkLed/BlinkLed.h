@@ -11,6 +11,7 @@
 #define BLINKLED_H_
 #include "Arduino.h"
 
+
 class BlinkLed
 {
 	protected:
@@ -28,6 +29,8 @@ class BlinkLed
 		uint32_t myOffInterval ;           // interval at which to blink (milliseconds)
 	public:
 		BlinkLed(uint8_t ledPin,uint32_t onInterval ,uint32_t offInterval);
+    void setOnInterval(uint32_t onInterval){myOnInterval=onInterval;};
+    void setOffInterval(uint32_t offInterval){myOffInterval=offInterval;};
 		void setup();
 		void loop();
 };

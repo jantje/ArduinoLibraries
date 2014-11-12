@@ -4,9 +4,11 @@
  *  Created on: Nov 28, 2012
  *      Author: BE04258
  */
-
 #include "SerialCommunicator.h"
 #include "SerialStringReader.h"
+#if ARDUINO<158
+#error This code needs Arduino IDE 1.5.8 or later
+#endif
 
 const char LOG_VALUE[] PROGMEM ="LOG VALUE";
 const char LOG_HEADER[] PROGMEM ="LOG HEADER";
@@ -19,76 +21,94 @@ const char DONE[] PROGMEM="done";
 const char SET[] PROGMEM ="SET ";
 const char GET[] PROGMEM ="GET ";
 
+const char setkeyValue[] PROGMEM = "setkeyValueCommand ";
+const char getkeyValue[] PROGMEM = "getkeyValueCommand ";
 
 uint8_t SerialCommunicator::myLogLevel;         // The Log Level used
-uint16_t SerialCommunicator::myArduinoResetCount; // the number of times Arduino is reset
+uint32_t SerialCommunicator::mylastLog;
 SerialStringReader SerialCommunicator::myStringSerial; //the class to read string from the serial monitor
 uint16_t SerialCommunicator::myLogDelay;        //The time to wait after a log has been done
 
 uint32_t SerialCommunicator::myLoopCounter;  //Counts the number of times loop has been called
+uint32_t SerialCommunicator::myMillis; //to show the millis since startup
 uint16_t SerialCommunicator::myAveragebetweenLoops; //The average millis between loop counts
 uint16_t SerialCommunicator::myMaxbetweenLoops; //The maximum millis between loop counts
+uint32_t SerialCommunicator::myLoopduration; //the duration of the loop
+uint32_t SerialCommunicator::myLogduration; //the duration of the last log
+int16_t SerialCommunicator::mySerialQueueSize; //The size of the stream queue
+//#ifdef I_USE_RESET
+//uint8_t SerialCommunicator::myResetPin = 0;  //The pin used to rest Arduino
+//uint16_t SerialCommunicator::myResetDelay = 800;//The delay before a reset is actioned
+//#endif
 
-
-void logValueVisitor(FieldData& fieldData)
+static void logValueVisitor(FieldData& fieldData)
 {
-	SerialOutput->print(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
-	SerialOutput->print(FIELDSEPERATOR);
+	SerialOutput.print(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
+	SerialOutput.print(FIELDSEPERATOR);
 }
-void logHeaderVisitor(FieldData& fieldData)
+static void logHeaderVisitor(FieldData& fieldData)
 {
-	SerialOutput->print(fieldData.myClassName);
-	SerialOutput->print(CLASSSEPERATOR);
-	SerialOutput->print(fieldData.myFieldName);
-	SerialOutput->print(FIELDSEPERATOR);
+	SerialOutput.print(fieldData.myClassName);
+	SerialOutput.print(CLASSSEPERATOR);
+	SerialOutput.print(fieldData.myFieldName);
+	SerialOutput.print(FIELDSEPERATOR);
 }
-void dumpVisitor(FieldData& fieldData)
+static void dumpVisitor(FieldData& fieldData)
 {
 	fieldData.dump();
 }
 
-void DumpWritableData(FieldData& fieldData)
+static void dumpWritableData(FieldData& fieldData)
 {
-	SerialOutput->print((__FlashStringHelper *) SET);
-	SerialOutput->print(fieldData.myClassName);
-	SerialOutput->print(CLASSSEPERATOR);
-	SerialOutput->print(fieldData.myFieldName);
-	SerialOutput->print('=');
-	SerialOutput->println(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
+	SerialOutput.print((__FlashStringHelper *) SET);
+	SerialOutput.print(fieldData.myClassName);
+	SerialOutput.print(CLASSSEPERATOR);
+	SerialOutput.print(fieldData.myFieldName);
+	SerialOutput.print('=');
+	SerialOutput.println(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
 }
 
-void dumpCommands()
+static void dumpCommands()
 {
-//Serial.println(F("Following commands are supported"));
-//Serial.println(F("? to show this info"));
-//Serial.println(F("DUMP full memory dump"));
-//Serial.println(F("GET [Name] 1 field memory dump"));
-//Serial.println(F("SET dump all the set commands"));
-//Serial.println(F("SET [Field]=[value] set value of field"));
-//Serial.println(F("LOG_VALUE LOG all the values"));
-//Serial.println(F("LOG HEADER LOG all the names"));
-//Serial.println(F("SAVE save the values"));
-//Serial.println(F("LOAD load the values"));
-//Serial.println(F("RESET reset arduino"));
+	/*
+	 * If you run out of program space you can save by comenting this verboze proza
+	 * That will make you can not query the commands but it also means you have more
+	 * program space
+	 * */
+SerialOutput.println(F("Following commands are supported"));
+SerialOutput.println(F("? to show this info"));
+SerialOutput.println(F("DUMP full memory dump"));
+SerialOutput.println(F("GET [Name] 1 field memory dump"));
+SerialOutput.println(F("SET dump all the set commands"));
+SerialOutput.println(F("SET [Field]=[value] set value of field"));
+SerialOutput.println(F("LOG_VALUE LOG all the values"));
+SerialOutput.println(F("LOG HEADER LOSerialOutput.he names"));
 }
 
-#ifdef I_USE_RESET
-void SerialCommunicator::ForceHardReset()
-{
-	delay(myResetDelay);
-	pinMode(myResetPin, OUTPUT);
-	digitalWrite(myResetPin, HIGH);
-	while (true)
-	;
-}
-#endif
+//#ifdef I_USE_RESET
+///*
+// * Don't fiddle with this code as it is very likely things won't work anymore
+// */
+//void SerialCommunicator::ForceHardReset()
+//{
+//	delay(myResetDelay);
+//	pinMode(myResetPin, OUTPUT); //this sets the pin to low one way or another
+//	//digitalWrite(myResetPin,LOW);
+//	digitalWrite(myResetPin,HIGH);
+//	SerialOutput.print(F("Did you connect pin "));
+//	SerialOutput.print(myResetPin);
+//	SerialOutput.println(F(" to reset?"));
+//	delay(10000);//needs some delay but if it fails you want to be able to try again
+//
+//}
+//#endif
 
 void SerialCommunicator::logValue()
 {
-	SerialOutput->print((__FlashStringHelper *) LOG_VALUE);
-	SerialOutput->print(FIELDSEPERATOR);
-	FieldData::visitAllFields(logValueVisitor,true);
-	SerialOutput->println();
+	SerialOutput.print((__FlashStringHelper *) LOG_VALUE);
+	SerialOutput.print(FIELDSEPERATOR);
+	FieldData::visitAllFields(logValueVisitor, true);
+	SerialOutput.println();
 }
 /*
  * This method does the repetitive task of the class.
@@ -96,16 +116,17 @@ void SerialCommunicator::logValue()
  */
 void SerialCommunicator::loop()
 {
-	static uint32_t myFirstLoop = millis();
+	myMillis = millis();
 	static uint32_t myPrefLoop = 0;
-	uint32_t myCurTime = millis();
+	static uint32_t myStartTime = millis();
+	uint32_t curloopTime = myMillis - myPrefLoop;
 	if (myLoopCounter != 0)
 	{
-		myAveragebetweenLoops = (myCurTime - myFirstLoop) / (myLoopCounter);
-		myMaxbetweenLoops = max(myMaxbetweenLoops,myCurTime-myPrefLoop);
+		myAveragebetweenLoops = (myMillis - myStartTime) / (myLoopCounter);
+		myMaxbetweenLoops = max(myMaxbetweenLoops, curloopTime);
 	}
 	myLoopCounter++;
-	myPrefLoop = myCurTime;
+	myPrefLoop = myMillis;
 
 	myStringSerial.loop();
 	if (myStringSerial.messageReceived())
@@ -114,13 +135,29 @@ void SerialCommunicator::loop()
 	}
 	if ((myLogLevel & 1) == 1)
 	{
-		static unsigned long lastLog = 0;
-		if ((millis() - lastLog) >= myLogDelay)
+
+
+		if (((millis() - mylastLog) >= myLogDelay))
 		{
-			logValue();
-			lastLog = millis();
+			mylastLog = millis();
+			int availableForWrite = SerialOutput.availableForWrite();
+			if (availableForWrite == mySerialQueueSize) //only when the buffer is completely empty transmit data
+			{
+				uint32_t logstart = millis();
+				logValue();
+				myLogduration = millis() - logstart;
+			} else
+			{
+        //The below output is tight for me
+				// the reason is that you do not want to put load on the stream
+				SerialOutput.print(F("log Fail have:"));
+				SerialOutput.print(availableForWrite);
+				SerialOutput.print(F(" need:"));
+				SerialOutput.println(mySerialQueueSize);
+			}
 		}
 	}
+	myLoopduration = millis() - myMillis;
 
 }
 
@@ -135,12 +172,12 @@ void SerialCommunicator::setReceivedMessage(const char* newMessage)
 		dumpAllFields();
 	} else if (strncmp_P(newMessage, GET, 4) == 0)
 	{
-		Serial.println((__FlashStringHelper *) GET);
+		SerialOutput.println((__FlashStringHelper *) GET);
 		FieldData *fieldData = FieldData::findField(newMessage + 4);
 		if (fieldData != 0) fieldData->dump();
 	} else if (strncmp_P(newMessage, SET, 4) == 0)
 	{
-		Serial.println((__FlashStringHelper *) SET);
+		SerialOutput.println((__FlashStringHelper *) SET);
 		FieldData *fp = FieldData::findField(newMessage + 4);
 		if (fp != 0)
 		{
@@ -149,60 +186,64 @@ void SerialCommunicator::setReceivedMessage(const char* newMessage)
 		}
 	} else if (strncmp_P(newMessage, SET, 3) == 0)
 	{
-		Serial.println((__FlashStringHelper *) SET);
-		FieldData::visitAllFields(DumpWritableData, false);
+		SerialOutput.println((__FlashStringHelper *) SET);
+		FieldData::visitAllFields(dumpWritableData, false);
 	} else if (strcmp_P(newMessage, LOG_HEADER) == 0)
 	{
-		SerialOutput->print((__FlashStringHelper *) LOG_HEADER);
-		SerialOutput->print(FIELDSEPERATOR);
-		FieldData::visitAllFields(logHeaderVisitor,true);
-		SerialOutput->println();
+		SerialOutput.print((__FlashStringHelper *) LOG_HEADER);
+		SerialOutput.print(FIELDSEPERATOR);
+		FieldData::visitAllFields(logHeaderVisitor, true);
+		SerialOutput.println();
 		return;
 	} else if (strcmp_P(newMessage, LOG_VALUE) == 0)
 	{
 		logValue();
 		return;
-#ifdef I_USE_RESET
-	} else if (strcmp_P(newMessage, RESET) == 0)
-	{
-		ForceHardReset();
-#endif
+//#ifdef I_USE_RESET
+//	} else if (strcmp_P(newMessage, RESET) == 0)
+//	{
+//		ForceHardReset();
+//#endif
 	} else
 	{
 		dumpCommands();
 		if ('?' != newMessage[0])
 		{
-			Serial.print((__FlashStringHelper *) ERROR);
-			Serial.println(newMessage);
+			SerialOutput.print((__FlashStringHelper *) ERROR);
+			//Even though it is handy to see what has been send
+			//The yun bootloader sends press ard to stop bootloader
+			//echoing this means the bootloader receives ard
+			//SerialOutput.println(newMessage);
 		}
 		return;
 	}
-	Serial.println((__FlashStringHelper *) DONE);
+	SerialOutput.println((__FlashStringHelper *) DONE);
 }
+
+
+
 
 void SerialCommunicator::dumpAllFields()
 {
-	Serial.println(F("Dumping all fields"));
-	Serial.print(F("SketchName\t"));
-	Serial.println((__FlashStringHelper *)mySketchName);
-	Serial.print(F("CompileDate\t"));
-	Serial.println(F(__DATE__));
-	FieldData::visitAllFields(dumpVisitor,true);
+	SerialOutput.println(F("Dumping all fields"));
+	SerialOutput.print(F("SketchName\t"));
+	SerialOutput.println((__FlashStringHelper *) mySketchName);
+	SerialOutput.print(F("CompileDate\t"));
+	SerialOutput.println(F(__DATE__));
+	FieldData::visitAllFields(dumpVisitor, true);
 }
-#ifdef I_USE_RESET
-	SerialCommunicator::SerialCommunicator(uint8_t resetPin)
-#else
+//#ifdef I_USE_RESET
+//SerialCommunicator::SerialCommunicator(uint8_t resetPin)
+//{
+//	myResetPin = resetPin;
+//	myResetDelay = 300;
+//}
+//#else
 SerialCommunicator::SerialCommunicator()
-#endif
 {
-#ifdef I_USE_RESET
-	myResetPin = resetPin;
-	myResetDelay = 300;
-#endif
-
+//#endif
 	myLogLevel = 1;
 	myLogDelay = 2000;
-	myArduinoResetCount = 0;
 	myLoopCounter = 0; /*Counts the number of times loop has been called*/
 	myAveragebetweenLoops = 0;/*The average millis between loop counts*/
 	myMaxbetweenLoops = 0;/*The maximum millis between loop counts*/
@@ -211,16 +252,35 @@ SerialCommunicator::SerialCommunicator()
 
 void SerialCommunicator::serialRegister(const __FlashStringHelper* Name)
 {
-
 	FieldData::set(Name, F("logLevel"),MOD_WRITE | MOD_SAVE, &myLogLevel);
-
 	FieldData::setNext( F("DelaybetweenLogs"), MOD_WRITE | MOD_SAVE, &myLogDelay);
 	FieldData::setNext( F("LoopCounter"), 0, &myLoopCounter);
-	FieldData::setNext( F("Avg Loop"), 0, &myAveragebetweenLoops);
-	FieldData::setNext( F("Max Loop"), 0, &myMaxbetweenLoops);
-	FieldData::setNext( F("ResetCount"),MOD_SAVE | MOD_WRITE,&myArduinoResetCount);
-#ifdef I_USE_RESET
-		FieldData::set(Name, F("ResetPin"), 0, &myResetPin);
-		FieldData::set(Name, F("ResetDelay"),MOD_WRITE | MOD_SAVE, &myResetDelay);
-#endif
-	}
+	FieldData::setNext( F("millis"), 0, &myMillis);
+	FieldData::setNext( F("Avg_Loop"), 0, &myAveragebetweenLoops);
+	FieldData::setNext( F("Max_Loop"), 0, &myMaxbetweenLoops);
+	FieldData::setNext((__FlashStringHelper *) LOOPDURATION, 0, &myLogduration);
+	FieldData::setNext( F("last_log_duration"), 0, &myLogduration);
+//#ifdef I_USE_RESET
+//	FieldData::set(Name, F("ResetPin"), 0, &myResetPin);
+//	FieldData::set(Name, F("ResetDelay"),MOD_WRITE | MOD_SAVE, &myResetDelay);
+//#endif
+}
+
+void SerialCommunicator::setup()
+{
+	mySerialQueueSize=0;
+	int16_t oldSerialQueueSize=0;
+	do
+		{
+		delay(200);//wait 200 ms in that time interval the queue should have been processed a bit
+		oldSerialQueueSize =mySerialQueueSize;
+		mySerialQueueSize=	SerialOutput.availableForWrite();
+		}
+	while (mySerialQueueSize!=oldSerialQueueSize);
+	SerialOutput.print("SerialQueueSize =");
+	SerialOutput.println(mySerialQueueSize);
+
+	myStringSerial.setup();
+	mylastLog = millis();
+}
+

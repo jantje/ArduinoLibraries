@@ -8,14 +8,16 @@
 #ifndef FIELDINFO_H_
 #define FIELDINFO_H_
 #include "Arduino.h"
+#include "SerialStringReader.h"
 
-#ifdef I_USE_GPS
+
+#if defined(I_USE_GPS) || defined(I_USE_DATETIME)
 #include "DataTypes.h"
 #endif
+#define commonlyUsedBuffersize 300
+extern char commonlyUsedBuffer[commonlyUsedBuffersize]; //a buffer you use for temporary storage.
+           //as this is a shared buffer don'texpect the data to be available after a while
 
-
-extern Stream *SerialInput;
-extern Stream *SerialOutput;
 
 typedef enum
 {

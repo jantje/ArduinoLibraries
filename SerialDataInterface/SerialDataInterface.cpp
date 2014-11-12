@@ -5,7 +5,7 @@
  *      Author: jan
  */
 
-#include "FieldData.h"
+#include "SerialDataInterface.h"
 const char LOOPDURATION[] PROGMEM ="Loopduration";
 const char STATENAME[] PROGMEM="StateName";
 const char MULTIPLIER[] PROGMEM ="Multiplier";
@@ -13,8 +13,7 @@ const char PINVALUE[] PROGMEM ="PinValue";
 const char PIN[] PROGMEM = "Pin";
 const char ERROR[] PROGMEM = "ERROR: ";
 
-uint8_t curFieldData = 0;
-//int FieldData::curFieldData = 0;
+uint8_t lastFieldIndex = 0;
 
 /**
  * This method dumps the content of the FieldData object to the stream provided
@@ -22,10 +21,10 @@ uint8_t curFieldData = 0;
 void FieldData::dump() const
 {
 	FieldInfo::dump();
-	SerialOutput->print(F("Value\t"));
-	SerialOutput->print(getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
-	SerialOutput->println();
-	SerialOutput->println();
+	SerialOutput.print(F("Value\t"));
+	SerialOutput.print(getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
+	SerialOutput.println();
+	SerialOutput.println();
 }
 
 /**
@@ -36,7 +35,7 @@ bool FieldData::setValue(const char* strValue)
 {
 	if (!(myModFlag & MOD_WRITE))
 	{
-		Serial.print(ERROR);
+		SerialError.print(ERROR);
 		return false;
 	}
 	uint32_t uint32Val = (uint32_t) strtoul(strValue, NULL, 10);
@@ -72,6 +71,18 @@ bool FieldData::setValue(const char* strValue)
 #endif
 #ifdef I_USE_GPS
 		case _GPSLocation:
+		{
+			const char * plat=strValue+5;
+			char * pComma=strchr(plat,',');
+			if (pComma==0) return false;
+			pComma[0]=0;
+			const char * plong=pComma+8;
+			myValue.pGPSLocation->myLatitude=atol(plat);
+			myValue.pGPSLocation->myLongitude=atol(plong);
+
+			//snprintf(buffer,buffersize,"Lat: %li, long: %li",myLatitude,myLongitude
+		}
+			break;
 #endif
 #ifdef I_USE_DATETIME
 		case _DateTime:
@@ -93,7 +104,7 @@ bool FieldData::setValue(const char* strValue)
  *
  * returns a pointer to a string that represents the value.
  */
-const char* FieldData::getValue(char * buffer, uint8_t bufferSize) const
+const char* FieldData::getValue(char * buffer, int bufferSize) const
 {
 	uint32_t val_uint32_t = 0;
 	int32_t val_int32_t = 0;
@@ -129,14 +140,18 @@ const char* FieldData::getValue(char * buffer, uint8_t bufferSize) const
 			done = false;
 			break;
 		case _ppchar:
-			snprintf(buffer, bufferSize, "\"%s\"", myValue.ppchar);
+			if (snprintf(buffer, bufferSize, "\"%s\"", myValue.ppchar) >=bufferSize)
+			{
+				//not everything fitted in the buffer make sure we have a double quote at the end
+				buffer[bufferSize-2]='"';
+			}
 			if ((myModFlag&MOD_ERASE_ON_DUMP)==MOD_ERASE_ON_DUMP)
 			{
 				myValue.ppchar[0]=0;
 			}
 			break;
 		case _FlashStringHelper:
-			strlcpy_P(buffer, (const prog_char *) *myValue.ppFlashStringHelper, bufferSize);
+			strlcpy_P(buffer, (const char *) *myValue.ppFlashStringHelper, bufferSize);
 			break;
 #ifdef I_USE_GPS
 		case _GPSLocation:
@@ -146,6 +161,10 @@ const char* FieldData::getValue(char * buffer, uint8_t bufferSize) const
 #ifdef I_USE_STRING
 			case _String:
 			myValue.pString->getBytes((unsigned char *)buffer,bufferSize,0);
+			if ((myModFlag&MOD_ERASE_ON_DUMP)==MOD_ERASE_ON_DUMP)
+			{
+				(*myValue.pString)="";
+			}
 			break;
 #endif
 #ifdef I_USE_DATETIME
@@ -177,7 +196,7 @@ bool isFieldMatch(const FieldInfo& fieldData, const char * MyMessage)
 	size_t ClassNameLength = strlen_P((char*) fieldData.myClassName);
 	size_t FieldNameLength = strlen_P((char*) fieldData.myFieldName);
 
-	if (strncmp_P(MyMessage, (const prog_char *) fieldData.myClassName, ClassNameLength) != 0) return false; /*Class name does not match*/
+	if (strncmp_P(MyMessage, (const char *) fieldData.myClassName, ClassNameLength) != 0) return false; /*Class name does not match*/
 	if (MyMessage[ClassNameLength] != CLASSSEPERATOR) return false;/*The Classname is to short*/
 	/*The class name is a match*/
 	if (strncmp_P(MyMessage + ClassNameLength + 1, (char*) fieldData.myFieldName, FieldNameLength) != 0) return false;/*field name does not match*/
@@ -188,7 +207,7 @@ bool isFieldMatch(const FieldInfo& fieldData, const char * MyMessage)
 
 FieldData* FieldData::findField(const char * fieldName)
 {
-	for (int curField = 0; curField < curFieldData; curField++)
+	for (int curField = 0; curField < lastFieldIndex; curField++)
 	{
 		if (isFieldMatch(AllFields[curField], fieldName))
 		{
@@ -200,7 +219,7 @@ FieldData* FieldData::findField(const char * fieldName)
 
 void FieldData::visitAllFields(FieldVisitor visitorfunc, uint8_t all)
 {
-	for (int curField = 0; curField < curFieldData; curField++)
+	for (int curField = 0; curField < lastFieldIndex; curField++)
 	{
 		if (all || ((AllFields[curField].myModFlag & MOD_SAVE) == MOD_SAVE))
 		{
@@ -208,39 +227,58 @@ void FieldData::visitAllFields(FieldVisitor visitorfunc, uint8_t all)
 		}
 	}
 }
+//
+//void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint16_t* data)
+//{
+//	AllFields[lastFieldIndex].myClassName=AllFields[lastFieldIndex-1].myClassName;
+//	AllFields[lastFieldIndex].myFieldName = FieldName;
+//	AllFields[lastFieldIndex].myType = _uint16_t;
+//	AllFields[lastFieldIndex].myModFlag = modFlag;
+//	AllFields[lastFieldIndex++].myValue.puint16_t = data;
+//}
+//void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, int16_t* data)
+//{
+//	AllFields[lastFieldIndex].myClassName=AllFields[lastFieldIndex-1].myClassName;
+//	AllFields[lastFieldIndex].myFieldName = FieldName;
+//	AllFields[lastFieldIndex].myType = _int16_t;
+//	AllFields[lastFieldIndex].myModFlag = modFlag;
+//	AllFields[lastFieldIndex++].myValue.pint16_t = data;
+//}
+//
+//void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint32_t* data)
+//{
+//	AllFields[lastFieldIndex].myClassName=AllFields[lastFieldIndex-1].myClassName;
+//	AllFields[lastFieldIndex].myFieldName = FieldName;
+//	AllFields[lastFieldIndex].myType = _uint32_t;
+//	AllFields[lastFieldIndex].myModFlag = modFlag;
+//	AllFields[lastFieldIndex++].myValue.puint32_t = data;
+//}
+//
+//void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint8_t* data)
+//{
+//	AllFields[lastFieldIndex].myClassName=AllFields[lastFieldIndex-1].myClassName;
+//	AllFields[lastFieldIndex].myFieldName = FieldName;
+//	AllFields[lastFieldIndex].myType = _uint8_t;
+//	AllFields[lastFieldIndex].myModFlag = modFlag;
+//	AllFields[lastFieldIndex++].myValue.puint8_t = data;
+//}
+//
+//void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, int8_t* data)
+//{
+//	AllFields[lastFieldIndex].myClassName=AllFields[lastFieldIndex-1].myClassName;
+//	AllFields[lastFieldIndex].myFieldName = FieldName;
+//	AllFields[lastFieldIndex].myType = _int8_t;
+//	AllFields[lastFieldIndex].myModFlag = modFlag;
+//	AllFields[lastFieldIndex++].myValue.pint8_t = data;
+//}
+//
+//void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, bool* data)
+//{
+//	AllFields[lastFieldIndex].myClassName=AllFields[lastFieldIndex-1].myClassName;
+//	AllFields[lastFieldIndex].myFieldName = FieldName;
+//	AllFields[lastFieldIndex].myType = _bool;
+//	AllFields[lastFieldIndex].myModFlag = modFlag;
+//	AllFields[lastFieldIndex++].myValue.pbool = data;
+//}
+//
 
-void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint16_t* data)
-{
-	AllFields[curFieldData].myClassName=AllFields[curFieldData-1].myClassName;
-	AllFields[curFieldData].myFieldName = FieldName;
-	AllFields[curFieldData].myType = _uint16_t;
-	AllFields[curFieldData].myModFlag = modFlag;
-	AllFields[curFieldData++].myValue.puint16_t = data;
-}
-
-void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint32_t* data)
-{
-	AllFields[curFieldData].myClassName=AllFields[curFieldData-1].myClassName;
-	AllFields[curFieldData].myFieldName = FieldName;
-	AllFields[curFieldData].myType = _uint32_t;
-	AllFields[curFieldData].myModFlag = modFlag;
-	AllFields[curFieldData++].myValue.puint32_t = data;
-}
-
-void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint8_t* data)
-{
-	AllFields[curFieldData].myClassName=AllFields[curFieldData-1].myClassName;
-	AllFields[curFieldData].myFieldName = FieldName;
-	AllFields[curFieldData].myType = _uint8_t;
-	AllFields[curFieldData].myModFlag = modFlag;
-	AllFields[curFieldData++].myValue.puint8_t = data;
-}
-
-void FieldData::setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, bool* data)
-{
-	AllFields[curFieldData].myClassName=AllFields[curFieldData-1].myClassName;
-	AllFields[curFieldData].myFieldName = FieldName;
-	AllFields[curFieldData].myType = _bool;
-	AllFields[curFieldData].myModFlag = modFlag;
-	AllFields[curFieldData++].myValue.pbool = data;
-}

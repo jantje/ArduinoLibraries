@@ -12,18 +12,21 @@
 class SerialBridgeCommunicator: public SerialCommunicator
 {
 	protected:
-		static void setReceivedMessage(const char* newMessage);
+		virtual void setReceivedMessage(const char* newMessage);
 	public:
-		static void SaveData(); //Reads data in the variables and stores it in the EEPROM memory
-		static void ReadData(); //Reads data stored in the EEPROM and sets its values to the variables
+		static void saveData(); //Reads data in the variables and stores it on the linux part of the yun
+		static void readData(); //Reads data on the linux part of the yun
+
 		static void setup();
-		static void loop();
-#ifdef I_USE_RESET
-		SerialBridgeCommunicator(uint8_t resetPin):
-			SerialCommunicator(resetPin)
-	{
-	};
-#endif
+		void runShellCommand(const char * command)
+		{	SerialOutput.print("EXEC:");SerialOutput.println(command);};
+		void runShellCommand(const __FlashStringHelper* command)
+		{	SerialOutput.print("EXEC:");SerialOutput.println(command);};
+		void runSynchronousShellCommand(const char * command,char * returnBuffer,uint8_t ReturnBuffersize);
+
 };
+
+
+extern SerialBridgeCommunicator myCommunicator;
 
 #endif /* SERIALBRIDGECOMMUNICATOR_H_ */

@@ -37,7 +37,7 @@ void BlinkLed::loop()
 	uint32_t myInterval =myOnInterval;
   if (myLedState == LOW)
   {
-  	myInterval = myOffInterval;
+  	myInterval =myOffInterval;
   }
 
 
@@ -63,3 +63,5 @@ void BlinkLed::loop()
     digitalWrite(myLedPin, myLedState);
   }
 }
+
+
