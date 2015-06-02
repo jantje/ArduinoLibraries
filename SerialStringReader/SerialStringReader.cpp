@@ -13,6 +13,7 @@ boolean SerialStringReader::myHasMessage = false;
 
 void SerialStringReader::flush()
 {
+#ifndef LOCAL_RUN //if we do simulations with files there is no need to flush out data
 	myHasMessage = false;
 	myMessageIndex = 0;
 	boolean hasReadSomething = false;
@@ -26,7 +27,7 @@ void SerialStringReader::flush()
 			hasReadSomething = true;
 		}
 	} while (hasReadSomething);
-
+#endif
 }
 
 void SerialStringReader::loop()
@@ -36,7 +37,7 @@ void SerialStringReader::loop()
 		char aChar = SerialInput.read();
 		if ((aChar == '\n') || (aChar == '\r'))
 		{
-			myHasMessage = myMessageIndex; //this way if \n and \r are send we do not get 2 messages
+			myHasMessage = (myMessageIndex!=0); //this way if \n and \r are send we do not get 2 messages
 			myMessageIndex = 0;
 		} else
 		{

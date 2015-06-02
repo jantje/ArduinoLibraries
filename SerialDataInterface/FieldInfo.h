@@ -34,10 +34,11 @@ typedef enum
 	_LastDataType
 } DataTypes;
 
-
-#define    MOD_WRITE 			1  //Allow writes to this field
-#define    MOD_SAVE  			2  //Allow this field to be saved
-#define	   MOD_ERASE_ON_DUMP	4  //When a dump is done this field is erased String="" integer values=0 pchar=/0
+#define    MOD_NONE 			(uint8_t)0  //Allow writes to this field
+#define    MOD_WRITE 			(uint8_t)1  //Allow writes to this field
+#define    MOD_SAVE  			(uint8_t)2  //Allow this field to be saved
+#define	   MOD_ERASE_ON_DUMP	(uint8_t)4  //When a dump is done this field is erased String="" integer values=0 pchar=/0
+#define	   MOD_OVERVIEW	(uint8_t)64  //When a overview page is made this field should be on the page
 class FieldInfo
 {
 	public:

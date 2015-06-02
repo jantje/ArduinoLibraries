@@ -6,6 +6,7 @@
  */
 #include "SerialCommunicator.h"
 #include "SerialStringReader.h"
+#include <avr/wdt.h>
 #if ARDUINO<158
 #error This code needs Arduino IDE 1.5.8 or later
 #endif
@@ -55,11 +56,27 @@ static void logHeaderVisitor(FieldData& fieldData)
 }
 static void dumpVisitor(FieldData& fieldData)
 {
+	/*
+	 * If you get an error here about wdt_reset not defined and you are building for teensy
+	 * add the following to .../Arduino/hardware/teensy/avr/cores/teensyXX/avr/wdt.h
+	 * where XX is your teensy version
+	 *
+	 * #ifndef __WDT_H__
+   * #define __WDT_H__
+   * void wdt_reset()
+   * {
+   * #warning "wdt_reset is not implemented"
+   * }
+   * #endif
+   *
+	 */
+	wdt_reset(); //make sure the watch dog does not trigger
 	fieldData.dump();
 }
 
 static void dumpWritableData(FieldData& fieldData)
 {
+	if ((fieldData.myModFlag&MOD_WRITE)!=MOD_WRITE)return;
 	SerialOutput.print((__FlashStringHelper *) SET);
 	SerialOutput.print(fieldData.myClassName);
 	SerialOutput.print(CLASSSEPERATOR);
@@ -131,6 +148,7 @@ void SerialCommunicator::loop()
 	myStringSerial.loop();
 	if (myStringSerial.messageReceived())
 	{
+		SerialOutput.println(myStringSerial.getMessage());
 		setReceivedMessage(myStringSerial.getMessage());
 	}
 	if ((myLogLevel & 1) == 1)
@@ -140,6 +158,11 @@ void SerialCommunicator::loop()
 		if (((millis() - mylastLog) >= myLogDelay))
 		{
 			mylastLog = millis();
+			/*
+			 * If you get an error below it means that the arduino stream class needs to be modified.
+			 * add the following to stream.h after the Available method
+			 * virtual int availableForWrite(void){return 0;};
+			 */
 			int availableForWrite = SerialOutput.availableForWrite();
 			if (availableForWrite == mySerialQueueSize) //only when the buffer is completely empty transmit data
 			{
@@ -187,7 +210,7 @@ void SerialCommunicator::setReceivedMessage(const char* newMessage)
 	} else if (strncmp_P(newMessage, SET, 3) == 0)
 	{
 		SerialOutput.println((__FlashStringHelper *) SET);
-		FieldData::visitAllFields(dumpWritableData, false);
+		FieldData::visitAllFields(dumpWritableData, true);
 	} else if (strcmp_P(newMessage, LOG_HEADER) == 0)
 	{
 		SerialOutput.print((__FlashStringHelper *) LOG_HEADER);
@@ -243,7 +266,7 @@ SerialCommunicator::SerialCommunicator()
 {
 //#endif
 	myLogLevel = 1;
-	myLogDelay = 2000;
+	myLogDelay = 1000;
 	myLoopCounter = 0; /*Counts the number of times loop has been called*/
 	myAveragebetweenLoops = 0;/*The average millis between loop counts*/
 	myMaxbetweenLoops = 0;/*The maximum millis between loop counts*/
@@ -254,12 +277,12 @@ void SerialCommunicator::serialRegister(const __FlashStringHelper* Name)
 {
 	FieldData::set(Name, F("logLevel"),MOD_WRITE | MOD_SAVE, &myLogLevel);
 	FieldData::setNext( F("DelaybetweenLogs"), MOD_WRITE | MOD_SAVE, &myLogDelay);
-	FieldData::setNext( F("LoopCounter"), 0, &myLoopCounter);
-	FieldData::setNext( F("millis"), 0, &myMillis);
-	FieldData::setNext( F("Avg_Loop"), 0, &myAveragebetweenLoops);
-	FieldData::setNext( F("Max_Loop"), 0, &myMaxbetweenLoops);
-	FieldData::setNext((__FlashStringHelper *) LOOPDURATION, 0, &myLogduration);
-	FieldData::setNext( F("last_log_duration"), 0, &myLogduration);
+	FieldData::setNext( F("LoopCounter"), MOD_NONE, &myLoopCounter);
+	FieldData::setNext( F("millis"), MOD_OVERVIEW, &myMillis);
+	FieldData::setNext( F("Avg_Loop"), MOD_NONE, &myAveragebetweenLoops);
+	FieldData::setNext( F("Max_Loop"), MOD_NONE, &myMaxbetweenLoops);
+	FieldData::setNext((__FlashStringHelper *) LOOPDURATION, MOD_NONE, &myLogduration);
+	FieldData::setNext( F("last_log_duration"), MOD_NONE, &myLogduration);
 //#ifdef I_USE_RESET
 //	FieldData::set(Name, F("ResetPin"), 0, &myResetPin);
 //	FieldData::set(Name, F("ResetDelay"),MOD_WRITE | MOD_SAVE, &myResetDelay);
@@ -284,3 +307,16 @@ void SerialCommunicator::setup()
 	mylastLog = millis();
 }
 
+void waitForYunToBoot()
+{
+	pinMode(7,INPUT_PULLUP);
+	delay(20);
+	while(digitalRead(7)==HIGH) //wait for yun to startup
+		{
+    // The pin is still high, so give the LED a quick flash to show we're waiting.
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN,LOW);
+    delay(100);
+		}
+}

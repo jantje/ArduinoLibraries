@@ -73,7 +73,7 @@ bool FieldData::setValue(const char* strValue)
 		case _GPSLocation:
 		{
 			const char * plat=strValue+5;
-			char * pComma=strchr(plat,',');
+			char * pComma=(char * )strchr(plat,',');
 			if (pComma==0) return false;
 			pComma[0]=0;
 			const char * plong=pComma+8;
@@ -177,10 +177,10 @@ const char* FieldData::getValue(char * buffer, int bufferSize) const
 	{
 		if (val_uint32_t != 0)
 		{
-			snprintf(buffer, bufferSize, "%lu", val_uint32_t);
+			snprintf(buffer, bufferSize, "%lu", (long unsigned int)val_uint32_t);
 		} else
 		{
-			snprintf(buffer, bufferSize, "%li", val_int32_t);
+			snprintf(buffer, bufferSize, "%li", (long int) val_int32_t);
 		}
 	}
 	return buffer;

@@ -75,6 +75,7 @@ class SerialCommunicator
 
 
 extern const char mySketchName[] PROGMEM;
+void waitForYunToBoot();
 
 
 #endif /* SERIALCOMMUNICATOR_H_ */

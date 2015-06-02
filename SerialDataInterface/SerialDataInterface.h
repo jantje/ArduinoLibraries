@@ -83,6 +83,10 @@ class FieldData: public FieldInfo
 		{
 			set(AllFields[lastFieldIndex-1].myClassName,FieldName,modFlag,data);
 		}
+		static void setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, int32_t* data)
+		{
+			set(AllFields[lastFieldIndex-1].myClassName,FieldName,modFlag,data);
+		}
 		static void setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint8_t* data)
 		{
 			set(AllFields[lastFieldIndex-1].myClassName,FieldName,modFlag,data);
@@ -92,6 +96,10 @@ class FieldData: public FieldInfo
 			set(AllFields[lastFieldIndex-1].myClassName,FieldName,modFlag,data);
 		}
 		static void setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, bool* data)
+		{
+			set(AllFields[lastFieldIndex-1].myClassName,FieldName,modFlag,data);
+		}
+		static void setNext( const __FlashStringHelper * FieldName, uint8_t modFlag,  char * data)
 		{
 			set(AllFields[lastFieldIndex-1].myClassName,FieldName,modFlag,data);
 		}
