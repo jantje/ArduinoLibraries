@@ -30,7 +30,7 @@ void loop()
 
   angle = angle + deltaAngle;
 
-  plot4(data1,data2,data3,data4);
+  plot4(Serial, data1,data2,data3,data4);
 
   delay(100); //Need some delay else the program gets swamped with data
 
