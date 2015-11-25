@@ -18,6 +18,6 @@ void _simple_plot_(Stream &output, byte numData, int data1, int data2, int data3
   pktSize =  (numData+2)*sizeof(int); //Header bytes + size field bytes + data
 
   output.write((uint8_t * )plotBuffer, pktSize);
-  output.println();
+ // output.println();
 }
 

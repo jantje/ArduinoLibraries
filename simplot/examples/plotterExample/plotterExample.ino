@@ -11,7 +11,7 @@ void setup()
 
 }
 
-
+char buffer[80];
 
 void loop()
 {
@@ -31,6 +31,8 @@ void loop()
   angle = angle + deltaAngle;
 
   plot4(Serial, data1,data2,data3,data4);
+  sprintf(buffer,"%i %i %i %i",data1,data2,data3,data4);
+  Serial.println(buffer);
 
   delay(100); //Need some delay else the program gets swamped with data
 
