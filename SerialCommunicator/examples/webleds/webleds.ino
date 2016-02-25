@@ -41,10 +41,10 @@ SerialCommunicator myCommunicator;
 class WebPixel
 {
 	private:
-		int R;
-		int G;
-		int B;
-		public:
+		uint8_t R;
+		uint8_t G;
+		uint8_t B;
+	public:
 		uint32_t getColor()
 		{
 			return pixels.Color(R, G, B);
@@ -58,7 +58,6 @@ class WebPixel
 	};
 WebPixel webPixel[NUMPIXELS];
 
-
 void setup()
 {
 	// This is for Trinket 5V 16MHz, you can remove these three lines if you are not using a Trinket
@@ -68,7 +67,6 @@ void setup()
 	// End of trinket special code
 
 	pixels.begin(); // This initializes the NeoPixel library.
-
 
 	delay(5000);
 	THESERIAL.begin(115200);
@@ -108,8 +106,8 @@ void loop()
 		// pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
 		pixels.setPixelColor(i, webPixel[i].getColor());
 	}
-  pixels.show(); // This sends the updated pixel color to the hardware.
-  delay(delayval);
+	pixels.show(); // This sends the updated pixel color to the hardware.
+	delay(delayval);
 	myCommunicator.loop();
 }
 
