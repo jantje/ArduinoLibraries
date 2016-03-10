@@ -2,6 +2,14 @@
 #define DATATYPES_H_
 #include "Arduino.h"
 
+extern int SerialQueueSize; // The size of the serial SendQueue initialize it with SerialQueueSize=ser.availableInSendQueue() after you Serial.begin()
+//#define DUMP_AND_WAIT(ser,msg,action) 		ser.println(msg);	while(ser.availableForWrite()<SerialQueueSize){action;};
+//#define DUMP_AND_WAIT(ser,msg)
+
+bool setPwmFrequency(uint8_t pin, uint8_t divisor);
+
+#define SIGN(v)  (( (v) > 0) - ((v) < 0))
+#define BIGGER(v,w) ( ( (v) > (w)) - ((v) < (w)))
 
 #define DIRECTION_TYPE int8_t  		//-90 to 90
 #define SPEED_TYPE     int16_t     // -255 255
@@ -10,9 +18,8 @@
 #define GPSSPEED     int16_t     // in meters per hour
 #define MAXGPSDEVIATION 0 // The maximum deviation to call it a hit 10 is default but to keep the robot at the same time I put it to 0 for testing
 //TOFIX SET this value to 10
-#define commonlyUsedBuffersize 100
-extern char commonlyUsedBuffer[commonlyUsedBuffersize]; //a buffer you use for temporary storage.
-           //as this is a shared buffer don'texpect the data to be available after a while
+const float rEarth_cm = 637100000.0; //this number is in cm
+
 
 class GPSLocation
 {
@@ -20,13 +27,35 @@ public:
 	long myLatitude; //Latitude Hours * 1.000.000
 	long myLongitude; //Longitude Hours * 1.000.000
 	//operator String() {return "Lat: " + String(myLatitude) + ", Long: " +String(myLongitude) ;};
-	bool operator ==(GPSLocation otherLoc) { return ( sqrt(square(otherLoc.myLatitude - myLatitude) + square(otherLoc.myLongitude-myLongitude ) ) < MAXGPSDEVIATION);}
+	bool operator ==(const GPSLocation otherLoc) const { return ( sqrt(pow(otherLoc.myLatitude - myLatitude,2) + pow(otherLoc.myLongitude-myLongitude,2 ) ) <= MAXGPSDEVIATION);}
 	//Serial.print (((String)otherLoc) + String("=") + this->operator String() + String(" is ") +ret);
 	//return ret;}
 	bool operator !=(GPSLocation otherLoc){return !(this->operator ==(otherLoc));}
 	GPSLocation operator = (GPSLocation otherLoc) {myLatitude = otherLoc.myLatitude; myLongitude = otherLoc.myLongitude; return otherLoc;}
-	char * getValue(char *buffer,byte buffersize)const{snprintf(buffer,buffersize,"Lat: %lu, long: %lu",myLatitude,myLongitude);return buffer;}
+	char * getValue(char *buffer,size_t buffersize)const{snprintf(buffer,buffersize,"Lat: %li, Long: %li",myLatitude,myLongitude);return buffer;}
+	float getLatitude(){return ((float)myLatitude)/1000000.0;}
+	float getLongitude(){return ((float)myLongitude)/1000000.0;}
+	float getLatitudeRad(){return radians(((float)myLatitude)/1000000.0);} //the latitude in radians
+	float getLongitudeRad(){return radians(((float)myLongitude)/1000000.0);} //the longitude in radians
+
+	/*Calculates the distance of 2 locations in cm.
+	 *
+	 */
+	uint32_t distance(GPSLocation point);
+
+	/* to convert gps coordiates to standard degrees to be able to calculate.
+	 *
+	 */
+	void convertDegreesToDeci();
+
+	/*
+	 * Calculates the compass value you need to go from this to targetpoint
+	 * returns the compass value in centirad
+	 */
+	uint32_t forwardAzimuth(GPSLocation targetPoint);
 };
+
+
 
 class DateTime {
 public:
@@ -48,7 +77,7 @@ public:
     long secondstime() const;
     // 32-bit times as seconds since 1/1/1970
     uint32_t unixtime(void) const;
-    char * ToString(char * buffer,int buffersize)const;
+    char * toString(char * buffer,int buffersize)const;
 
 
 protected:

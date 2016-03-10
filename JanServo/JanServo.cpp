@@ -1,23 +1,30 @@
 #include "JanServo.h"
-#include "FieldData.h"
 
-
-
-void JanServo::SetPosition(uint8_t Position)
+void JanContiniousServo::setPosition(uint8_t Position)
 {
-	ServoPosition = Position;
-	write(ServoPosition + offset);
+	myServoPosition =  Position  ;
+	write(constrain((int)myServoPosition + myOffset,0,180));
 }
-void JanServo::serialRegister(const __FlashStringHelper* Name)
+
+
+#ifdef I_USE_SERIAL_REGISTER
+void JanContiniousServo::serialRegister(const __FlashStringHelper* Name)
 {
-	FieldData::set(Name, (__FlashStringHelper *) (PIN), 0, &ServoControlPin);
-	FieldData::setNext( F("Position"),0,&ServoPosition);
-	FieldData::setNext( F("offset"),MOD_SAVE | MOD_WRITE,&offset);
+	FieldData::set(Name, (__FlashStringHelper *) (PIN), 0, &myServoControlPin);
+	FieldData::setNext( F("Position"),(uint8_t)0,&myServoPosition);
+	FieldData::setNext( F("offset"),MOD_SAVE | MOD_WRITE,&myOffset);
 }
-//void JanServo::setup()
-//{
-//	attach(ServoControlPin); //this can not be done in the constructor for one reason or another
-//}
+
+void JanConstraintServo::serialRegister(const __FlashStringHelper* Name)
+{
+	FieldData::set(Name, (__FlashStringHelper *) (PIN), MOD_NONE, &myServoControlPin);
+	FieldData::setNext( F("Position"),MOD_NONE,&myServoPosition);
+	FieldData::setNext( F("newPosition"),MOD_WRITE,&myNewServoPosition);
+	FieldData::setNext( F("MaxServoPositionset"),MOD_WRITE|MOD_SAVE,&myMaxServoPosition);
+	FieldData::setNext( F("minServoPosition"),MOD_WRITE|MOD_SAVE,&myMinServoPosition);
+	FieldData::setNext( F("DefaultServoPosition"),MOD_WRITE|MOD_SAVE,&myDefaultServoPosition);
+
+}
+#endif
 
 
-// no code here as all code is inline

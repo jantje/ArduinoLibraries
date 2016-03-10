@@ -10,35 +10,33 @@
 
 
 #include "Arduino.h"
-#ifdef I_USE_SERIAL_COMMUNICATOR
-#include "FieldData.h"
-#endif
+#include "SerialDataInterface.h"
+
 class VoltMeter
 {
 	private:
 		uint8_t myPin;
-		uint16_t myMilivolt;
+		uint16_t myCentiVolt;
 		uint16_t myMultiplyerValue;
 		uint16_t myActualReadValue;
 		uint16_t myAveragedReadValue;
-		uint32_t myLoopduration;
+		//uint32_t myLoopduration;
 
 	public:
 		VoltMeter( uint8_t Pin);
 
 		void setup()
 		{
-			pinMode(myPin,INPUT);
+			//pinMode(myPin,INPUT); This is not needed
 			loop(); //initialize the average
 			myAveragedReadValue=myActualReadValue;
 		}
 
 		void loop();
-		uint16_t getVoltage() const	{	return myMilivolt;}
+		uint16_t getCentiVoltage() const	{	return myCentiVolt;}
+		uint16_t get_dV() const	{	return (myCentiVolt+5)/10;}
 
-#ifdef I_USE_SERIAL_COMMUNICATOR
 		void serialRegister(const __FlashStringHelper* Name);
-#endif
 };
 
 #endif /* VOLTMETER_H_ */

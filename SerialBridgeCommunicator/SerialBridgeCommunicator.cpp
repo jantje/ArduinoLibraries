@@ -6,14 +6,15 @@
  */
 
 #include "SerialBridgeCommunicator.h"
+#include <avr/wdt.h>
 #define BUFFERSIZE 100
 
 const char SAVE[] PROGMEM = "SAVE";
 const char LOAD[] PROGMEM = "LOAD";
 const char scriptlocation[] PROGMEM = "/www/cgi-bin/jantje/";
 const char keyvaluefile[] PROGMEM = "/mnt/sda1/jantje/keyvalue";
-const char setkeyValue[] PROGMEM = "setkeyValue ";
-const char getkeyValue[] PROGMEM = "getkeyValue ";
+const char setkeyValue[] PROGMEM = "setkeyValueCommand ";
+const char getkeyValue[] PROGMEM = "getkeyValueCommand ";
 
 
 
@@ -113,6 +114,7 @@ void SerialBridgeCommunicator::runSynchronousShellCommand(const char* command, c
 	do
 	{
 		myStringSerial.loop();
+		wdt_reset(); //make sure the watch dog does not trigger
 	} while (!(myStringSerial.messageReceived() || ((millis() - startTime) > 5000)));
 	strncpy(returnBuffer, myStringSerial.getMessage(), ReturnBuffersize);
 }

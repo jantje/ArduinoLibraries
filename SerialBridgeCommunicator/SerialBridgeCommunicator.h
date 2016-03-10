@@ -11,9 +11,9 @@
 
 class SerialBridgeCommunicator: public SerialCommunicator
 {
-	protected:
-		virtual void setReceivedMessage(const char* newMessage);
+
 	public:
+		virtual void setReceivedMessage(const char* newMessage);
 		static void saveData(); //Reads data in the variables and stores it on the linux part of the yun
 		static void readData(); //Reads data on the linux part of the yun
 
