@@ -150,9 +150,11 @@ const char* FieldData::getValue(char * buffer, int bufferSize) const
 				myValue.ppchar[0]=0;
 			}
 			break;
+#ifdef I_USE_PROGMEM
 		case _FlashStringHelper:
 			strlcpy_P(buffer, (const char *) *myValue.ppFlashStringHelper, bufferSize);
 			break;
+#endif
 #ifdef I_USE_GPS
 		case _GPSLocation:
 			myValue.pGPSLocation->getValue(buffer, bufferSize);

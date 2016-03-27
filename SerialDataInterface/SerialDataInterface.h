@@ -51,7 +51,9 @@ class FieldData: public FieldInfo
 				int16_t* pint16_t;
 				char * ppchar;
 				bool* pbool;
+#ifdef I_USE_PROGMEM
 				const __FlashStringHelper** ppFlashStringHelper;
+#endif
 #ifdef I_USE_STRING
 				String* pString;
 #endif
