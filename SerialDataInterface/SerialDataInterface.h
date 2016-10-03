@@ -27,8 +27,11 @@ extern const char NAME_NOT_FOUND[]PROGMEM;
 extern const char NAME_TO_LONG[]PROGMEM;
 extern const char DONE[]PROGMEM;
 extern const char STATENAME[] PROGMEM;
+extern const char STATE[] PROGMEM;
+extern const char MULTIPLIER_DIV_10[] PROGMEM;
 #define CLASSSEPERATOR '.'
 #define FIELDSEPERATOR ';'
+#define FP(name) ((const __FlashStringHelper *)(name))
 
 class FieldData;
 extern FieldData AllFields[];

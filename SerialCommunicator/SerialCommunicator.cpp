@@ -6,6 +6,7 @@
  */
 #include "SerialCommunicator.h"
 #include "SerialStringReader.h"
+#include "watchdog.h"
 
 #if ARDUINO<158
 #error This code needs Arduino IDE 1.5.8 or later

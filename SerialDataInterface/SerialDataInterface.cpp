@@ -8,7 +8,10 @@
 #include "SerialDataInterface.h"
 const char LOOPDURATION[] PROGMEM ="Loopduration";
 const char STATENAME[] PROGMEM="StateName";
+const char STATE[] PROGMEM="State";
 const char MULTIPLIER[] PROGMEM ="Multiplier";
+const char MULTIPLIER_DIV_10[] PROGMEM ="Multiplier/10";
+
 const char PINVALUE[] PROGMEM ="PinValue";
 const char PIN[] PROGMEM = "Pin";
 const char ERROR[] PROGMEM = "ERROR: ";
