@@ -54,7 +54,7 @@ void VoltMeter::loop()
 		void VoltMeter::serialRegister(const __FlashStringHelper* Name)
 		{
 			FieldData::set(Name,F("CentiVolt"),0,&myCentiVolt);
-			FieldData::setNext((__FlashStringHelper *)MULTIPLIER,MOD_WRITE|MOD_SAVE,&myMultiplyerValue);
+			FieldData::setNext((__FlashStringHelper *)MULTIPLIER_DIV_1000,MOD_WRITE|MOD_SAVE,&myMultiplyerValue);
 
 #ifdef DETAILED_SERIAL_LOGGING
 			FieldData::setNext(F("Value"),0,&myActualReadValue);

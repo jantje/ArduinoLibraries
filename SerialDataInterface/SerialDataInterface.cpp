@@ -11,6 +11,7 @@ const char STATENAME[] PROGMEM="StateName";
 const char STATE[] PROGMEM="State";
 const char MULTIPLIER[] PROGMEM ="Multiplier";
 const char MULTIPLIER_DIV_10[] PROGMEM ="Multiplier/10";
+const char MULTIPLIER_DIV_1000[] PROGMEM ="Multiplier/1000";
 
 const char PINVALUE[] PROGMEM ="PinValue";
 const char PIN[] PROGMEM = "Pin";
