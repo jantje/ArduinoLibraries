@@ -1,0 +1,379 @@
+{
+  "libraries": [
+   
+    {
+      "name": "BlinkLed",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Blink without delay in a class.",
+      "paragraph": "Blink without delay in a class alowing multiple leds to be blinking at  different rates at the same time.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-BlinkLed-1.0.0.zip",
+      "archiveFileName": "jantje-BlinkLed-1.0.0.zip",
+      "size": 2955,
+      "checksum": "SHA-256:6B21B17B78EF095938A9B6A48FB652EC3C9AA6E54CE32E8B6CEE432B022FA8B0"
+    },
+        {
+              "name": "BlinkLedSerial",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "BlinkLed controlled over the serial monitor.",
+      "paragraph": "BlinkLedSerial allows to control the blinkled class instantiations to be controlled over Serial monnitor.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-BlinkLedSerial-1.0.0.zip",
+      "archiveFileName": "jantje-BlinkLedSerial-1.0.0.zip",
+      "size": 1112,
+      "checksum": "SHA-256:91250A19F82E82E932CEC50E91D24B613440EEB39D360A3D7C017084B983C7B6"
+    },
+        {
+              "name": "DataTypes",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Helper library for data types comunication.",
+      "paragraph": "A library helping to covert data types to text and back to the data types.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-DataTypes-1.0.0.zip",
+      "archiveFileName": "jantje-DataTypes-1.0.0.zip",
+      "size": 1112,
+      "checksum": "SHA-256:C592C4E3A4AB3BFDA2713CF0FE54F339B8E226A65868B0FB97F2E30C9A646C8A"
+    }
+    ,
+        {
+      "name": "gdb",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "gdb hub library.",
+      "paragraph": "A library to allow to include gdb.h for esp8266 debugging.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-gdb-1.0.0.zip",
+      "archiveFileName": "jantje-gdb-1.0.0.zip",
+      "size": 570,
+      "checksum": "SHA-256:26EAD96595283E2317DD2807300E0A7E8C7E41F70D24A38B4DDD71A4F174AE12"
+    }
+        ,
+        {
+      "name": "gps_Library",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "setup loop gps class.",
+      "paragraph": "GPS class using the setup loop way of programming.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-gps_Library-1.0.0.zip",
+      "archiveFileName": "jantje-gps_Library-1.0.0.zip",
+      "size": 5580,
+      "checksum": "SHA-256:FF50E49764527D90345177ACB9587822C5ECA3906988ED7C32CEC198A1224A41"
+    }
+         ,
+        {
+      "name": "gtest",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "A unit test library.",
+      "paragraph": "A library allowing to do unit testing using the google unit test framework.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-gtest-1.0.0.zip",
+      "archiveFileName": "jantje-gtest-1.0.0.zip",
+      "size": 256472,
+      "checksum": "SHA-256:D2F17D47339151D3AD96CA8B38EF7C06F9ED59A91CB0AF6E743B69F6CE9781C8"
+    }   
+           ,
+        {
+      "name": "I2CLiquidCrystal",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Use liquidCrystals over I2C.",
+      "paragraph": "Send and receive liquid crystal commands over I2C.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-I2CLiquidCrystal-1.0.0.zip",
+      "archiveFileName": "jantje-I2CLiquidCrystal-1.0.0.zip",
+      "size": 5621  ,
+      "checksum": "SHA-256:D43E117CA5F88F33778E4F4505A2F65DF8E51A1202394EEEC1DC18EACFF13770"
+    }   
+               ,
+        {
+      "name": "JanServo",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "A library to handle non aligned servo's.",
+      "paragraph": "Provides a class for continious servo's and one for constrainted servo's.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-JanServo-1.0.0.zip",
+      "archiveFileName": "jantje-JanServo-1.0.0.zip",
+      "size": 5121    ,
+      "checksum": "SHA-256:B83F1FD2A5CCBDBE09E5F6499D8D6BAB7E7F4776C51A0C0EDF416EF3CFBC179E"
+    }   ,
+        {
+      "name": "minibridge",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Mini alternative for the yun bridge.",
+      "paragraph": "Partial bridge functionality without using the String class.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-minibridge-1.0.0.zip",
+      "archiveFileName": "jantje-minibridge-1.0.0.zip",
+      "size": 5186    ,
+      "checksum": "SHA-256:E81EE9AF98A122C5A9E3E64EA06B08D7B10AF6BA5205AFA4608D45DF7494FF70"
+    } 
+       ,
+        {
+      "name": "RCLib",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Receive RC signals without pulsein.",
+      "paragraph": "RC lib allowing to receive rc channels on interrupt basis.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-RCLib-1.0.0.zip",
+      "archiveFileName": "jantje-RCLib-1.0.0.zip",
+      "size": 4022      ,
+      "checksum": "SHA-256:C5B573DB9CF9BF7000FAA0FA86B355FD2E5AD87AE4A502B614990AB665DC9828"
+    } 
+           ,
+        {
+      "name": "SerialBridgeCommunicator",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Serial communicator using the yun bridge to store data.",
+      "paragraph": "Serial communicator using the yun bridge to store data on the linux part of the yun.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-SerialBridgeCommunicator-1.0.0.zip",
+      "archiveFileName": "jantje-SerialBridgeCommunicator-1.0.0.zip",
+      "size": 2725        ,
+      "checksum": "SHA-256:786D2114DB4BD62B2640CDFB2E677664E176AB561F9110BCDF436E8A9BC7342B"
+    } 
+               ,
+        {
+      "name": "SerialCommunicator",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Serial communicator using serial communication.",
+      "paragraph": "Serial communicator using serial communication.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-SerialCommunicator-1.0.0.zip",
+      "archiveFileName": "jantje-SerialCommunicator-1.0.0.zip",
+      "size": 19186          ,
+      "checksum": "SHA-256:20816AE872CE0426153AE667A27934E8B3D2AB983020999C55E9E2574354D790"
+    } 
+                   ,
+        {
+      "name": "SerialDataInterface",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Serial communicator helper library.",
+      "paragraph": "Serial communicator helper library.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-SerialDataInterface-1.0.0.zip",
+      "archiveFileName": "jantje-SerialDataInterface-1.0.0.zip",
+      "size": 5656            ,
+      "checksum": "SHA-256:DF350DEF41AE2CA995E546E11A97C656E84F6B1A48F0255194ED1A036093124C"
+    } 
+               ,
+        {
+      "name": "SerialEEPROMCommunicator",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Serial communicator using EEPROM to store data.",
+      "paragraph": "Serial communicator using EEPROM to store data.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-SerialEEPROMCommunicator-1.0.0.zip",
+      "archiveFileName": "jantje-SerialEEPROMCommunicator-1.0.0.zip",
+      "size": 1810          ,
+      "checksum": "SHA-256:BCB3252BDE0976AC1A63D24DECC9A374929539A119859707844679419E72CB07"
+    } 
+                   ,
+        {
+      "name": "SerialStringReader",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Read serial line by line.",
+      "paragraph": "Library allowing to read  the serial input stream line by line.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-SerialStringReader-1.0.0.zip",
+      "archiveFileName": "jantje-SerialStringReader-1.0.0.zip",
+      "size": 5053            ,
+      "checksum": "SHA-256:1BD8469A4BC2557A23F16B6176F9FD6D84A64BE8F77F07B92D2FAECCAF2CE536"
+    }
+                       ,
+        {
+      "name": "simplot",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Making the Sloeber Plotter easy.",
+      "paragraph": "Library allowing to use the Sloeber plotter in a easy way.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-simplot-1.0.0.zip",
+      "archiveFileName": "jantje-simplot-1.0.0.zip",
+      "size": 2048              ,
+      "checksum": "SHA-256:23AADFA4C5EF7CBD247D7F33578886E7C10EC0EA9FD670C15B743FBB5FE36993"
+    }  
+                           ,
+        {
+      "name": "VoltMeter",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Making volts from a ADC measurement.",
+      "paragraph": "Library allowing to read a ADC pin and convert it to volts.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-VoltMeter-1.0.0.zip",
+      "archiveFileName": "jantje-VoltMeter-1.0.0.zip",
+      "size": 1675                ,
+      "checksum": "SHA-256:5225ED9B0DA695753A10C0E9B630C62B628419B349590345E4532C0B6A9302E1"
+    }  
+                               ,
+        {
+      "name": "wiebel",
+      "version": "1.0.0",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Have a servo make a rocking motion.",
+      "paragraph": "Library allowing a servo to make a controlled rocking movement (called Wiebellen in flemish).",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-wiebel-1.0.0.zip",
+      "archiveFileName": "jantje-wiebel-1.0.0.zip",
+      "size": 3354                  ,
+      "checksum": "SHA-256:F5367C9577FBF3CF67AEC90EA97C59286B72B6D845FB9AEB4AADF682E29262AE"
+    }  
+    ]
+}
