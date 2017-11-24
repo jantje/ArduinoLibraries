@@ -1585,7 +1585,7 @@ bool String::CaseInsensitiveCStringEquals(const char * lhs, const char * rhs) {
     return rhs == NULL;
   if (rhs == NULL)
     return false;
-  return posix::StrCaseCmp(lhs, rhs) == 0;
+  return strcasecmp(lhs, rhs) == 0;
 }
 
   // Compares two wide C strings, ignoring case.  Returns true iff they
