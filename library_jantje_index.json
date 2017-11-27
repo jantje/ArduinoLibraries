@@ -315,6 +315,26 @@
                        ,
         {
       "name": "simplot",
+      "version": "1.0.1",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Making the Sloeber Plotter easy.",
+      "paragraph": "Library allowing to use the Sloeber plotter in a easy way.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-simplot-1.0.1.zip",
+      "archiveFileName": "jantje-simplot-1.0.1.zip",
+      "size": 2048              ,
+      "checksum": "SHA-256:23AADFA4C5EF7CBD247D7F33578886E7C10EC0EA9FD670C15B743FBB5FE36993"
+    }  
+                           , {
+      "name": "simplot",
       "version": "1.0.0",
       "author": "Arduino",
       "maintainer": "jantje",
