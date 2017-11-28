@@ -24,12 +24,12 @@ void loop() {
 	if (shouldIPlotData) {
 		plot2(Serial, ledValue1 * 255, ledValue2);
 	}
-	lowByte(255);
+
 	//show we are still alive
 	if (printAliveMessage) {
 		Serial.println("I'm alive");
 	}
-	delay(1);
+
 }
 
 
