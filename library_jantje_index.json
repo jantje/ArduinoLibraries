@@ -106,6 +106,27 @@
          ,
         {
       "name": "gtest",
+      "version": "1.0.1",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "A unit test library.",
+      "paragraph": "A library allowing to do unit testing using the google unit test framework.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-gtest-1.0.1.zip",
+      "archiveFileName": "jantje-gtest-1.0.1.zip",
+      "size": 256472,
+      "checksum": "SHA-256:D2F17D47339151D3AD96CA8B38EF7C06F9ED59A91CB0AF6E743B69F6CE9781C8"
+    }   
+           ,
+                   {
+      "name": "gtest",
       "version": "1.0.0",
       "author": "Arduino",
       "maintainer": "jantje",
@@ -311,7 +332,28 @@
       "archiveFileName": "jantje-SerialStringReader-1.0.0.zip",
       "size": 5053            ,
       "checksum": "SHA-256:1BD8469A4BC2557A23F16B6176F9FD6D84A64BE8F77F07B92D2FAECCAF2CE536"
-    }
+    }     ,
+        {
+      "name": "simplot",
+      "version": "1.0.2",
+      "author": "Arduino",
+      "maintainer": "jantje",
+      "sentence": "Making the Sloeber Plotter easy.",
+      "paragraph": "Library allowing to use the Sloeber plotter in a easy way.",
+      "website": "https://github.com/jantje/ArduinoLibraries",
+      "category": "Other",
+      "architectures": [
+        "*"
+      ],
+      "types": [
+        "Arduino"
+      ],
+      "url": "https://github.com/jantje/ArduinoLibraries/releases/download/v1.0/jantje-simplot-1.0.2.zip",
+      "archiveFileName": "jantje-simplot-1.0.2.zip",
+      "size": 2048              ,
+      "checksum": "SHA-256:23AADFA4C5EF7CBD247D7F33578886E7C10EC0EA9FD670C15B743FBB5FE36993"
+    }  
+                        
                        ,
         {
       "name": "simplot",
