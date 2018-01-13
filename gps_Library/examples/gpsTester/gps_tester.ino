@@ -47,7 +47,7 @@ void loop()
 	if (millis()-lastLog>30000)
 	{
 		lastTime = CurTime;
-		MYSERIAL.println(CurTime.ToString(buffer,100));
+		MYSERIAL.println(CurTime.toString(buffer,100));
 		MYSERIAL.print("Has reception ");
 		MYSERIAL.println(MyGpsModule.hasReception());
 		MYSERIAL.print("Latitude ");
