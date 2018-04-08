@@ -7,32 +7,46 @@
  *      I made the on interval different from the off interval
  */
 
-#ifndef BLINKLED_H_
-#define BLINKLED_H_
+#pragma once
+
 #include "Arduino.h"
+#ifdef SOFTPWM
+#include "SoftPWM.h"
+#else
+#warning If the leds are to bright define SOFTPWM
+#endif
 
 
 class BlinkLed
 {
+    public:
+        enum ledState{blinking,on,off};
+        BlinkLed(uint8_t ledPin,uint16_t onInterval ,uint16_t offInterval);
+    void setOnInterval(uint16_t onInterval){myOnInterval=onInterval;};
+    void setOffInterval(uint16_t offInterval){myOffInterval=offInterval;};
+        void setup();
+        void loop();
+        ledState getLedState(){return myLedState;};
+        void setLedState(ledState newLedState){myLedState=newLedState;};
 	protected:
 		// constants won't change. Used here to
 		// set pin numbers:
 		uint8_t myLedPin ;      // the number of the LED pin
-
-		// Variables will change:
-		uint8_t myLedState ;             // ledState used to set the LED
-		uint32_t myPreviousMillis ;        // will store last time LED was updated
+		ledState myLedState;
 
 		// the follow variables is a long because the time, measured in miliseconds,
 		// will quickly become a bigger number than can be stored in an int.
-		uint32_t myOnInterval ;           // interval at which to blink (milliseconds)
-		uint32_t myOffInterval ;           // interval at which to blink (milliseconds)
+		uint16_t myOnInterval ;           // interval at which to blink (milliseconds)
+		uint16_t myOffInterval ;           // interval at which to blink (milliseconds)
+		uint8_t myPrefPinState;
+		uint32_t myPrefLoopMillis;
+#ifdef SOFTPWM
+		//the usage of softpwm allows to coorect the brightness of the leds
 	public:
-		BlinkLed(uint8_t ledPin,uint32_t onInterval ,uint32_t offInterval);
-    void setOnInterval(uint32_t onInterval){myOnInterval=onInterval;};
-    void setOffInterval(uint32_t offInterval){myOffInterval=offInterval;};
-		void setup();
-		void loop();
+		void setPwmValue(uint8_t newPwmValue){myPwmValue=newPwmValue;};
+	protected:
+		uint8_t myPwmValue;
+#endif
+
 };
 
-#endif /* BLINKLED_H_ */

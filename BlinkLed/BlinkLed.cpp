@@ -7,61 +7,68 @@
 
 #include "BlinkLed.h"
 
-BlinkLed::BlinkLed(uint8_t ledPin,uint32_t onInterval ,uint32_t offInterval )
-{
+BlinkLed::BlinkLed(uint8_t ledPin, uint16_t onInterval, uint16_t offInterval) {
 
-	myLedPin =  ledPin;      // the number of the LED pin
-	myLedState = LOW;             // ledState used to set the LED
-	myPreviousMillis = millis();        // will store last time LED was updated
-	myOnInterval = onInterval;
-	myOffInterval=offInterval;
+    myLedPin = ledPin;      // the number of the LED pin
+    myOnInterval = onInterval;
+    myOffInterval = offInterval;
+    myLedState = blinking;
+    myPrefPinState = LOW;
+    myPrefLoopMillis = 0;
+#ifdef SOFTPWM
+    myPwmValue=100;
+#endif
 }
-
-
-
 
 void BlinkLed::setup() {
-  // set the digital pin as output:
-  pinMode(myLedPin, OUTPUT);
-  digitalWrite(myLedPin, myLedState);
+    // set the digital pin as output:
+    pinMode(myLedPin, OUTPUT);
+
+#ifdef SOFTPWM
+    SoftPWMSet(myLedPin, 0);
+    SoftPWMSetFadeTime(myLedPin, 1000, 1000);
+#else
+    digitalWrite(myLedPin, LOW);
+#endif
 }
 
-void BlinkLed::loop()
-{
-  // here is where you'd put code that needs to be running all the time.
+void BlinkLed::loop() {
+#ifdef LOOPMILLIS
+    extern uint32_t LOOPMILLIS;
+#else
+#define LOOPMILLIS curMillis
+    uint32_t LOOPMILLIS = millis();
 
-  // check to see if it's time to blink the LED; that is, if the
-  // difference between the current time and last time you blinked
-  // the LED is bigger than the interval at which you want to
-  // blink the LED.
-	uint32_t myInterval =myOnInterval;
-  if (myLedState == LOW)
-  {
-  	myInterval =myOffInterval;
-  }
-
-
-  unsigned long currentMillis = millis();
-
-  if(currentMillis - myPreviousMillis > myInterval) {
-    // save the last time you blinked the LED
-  	myPreviousMillis = currentMillis;
-
-    // if the LED is off turn it on and vice-versa:
-    if (myLedState == LOW)
-    {
-    	myLedState = HIGH;
-    	myInterval =myOnInterval;
+#endif
+    uint8_t newPinState = LOW;
+    switch (myLedState) {
+        case blinking: {
+            //this is a expensive calculation
+            if (LOOPMILLIS - myPrefLoopMillis > 10) {
+                myPrefLoopMillis = LOOPMILLIS;
+                if ((LOOPMILLIS % (myOnInterval + myOffInterval)) >= myOffInterval) {
+                    newPinState = HIGH;
+                } else {
+                    newPinState = LOW;
+                }
+            } else {
+                return;
+            }
+            break;
+        }
+        case on:
+            newPinState = HIGH;
+            break;
+        case off:
+            newPinState = LOW;
     }
-    else
-    {
-    	myLedState = LOW;
-    	myInterval =myOffInterval;
+    if (myPrefPinState != newPinState) {
+#ifdef SOFTPWM
+        SoftPWMSet(myLedPin, newPinState*myPwmValue);
+#else
+        digitalWrite(myLedPin, newPinState);
+#endif
+        myPrefPinState = newPinState;
     }
-
-    // set the LED with the ledState of the variable:
-    digitalWrite(myLedPin, myLedState);
-  }
 }
-
 
