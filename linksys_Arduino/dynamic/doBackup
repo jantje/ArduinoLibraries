@@ -1,0 +1,8 @@
+#!/bin/ash
+
+. SetGlobalSettings.sh
+mkdir -p ${backupLocation}/dynamic
+mkdir -p ${backupLocation}/static
+cp ${WebLocation}/* ${backupLocation}/dynamic
+cp ${StaticWebLocation}/* ${backupLocation}/static
+

@@ -1,0 +1,28 @@
+#!/bin/ash
+#this script returns the generated.html (${OutputHtml}).
+#if that file is not existing 
+# 1)the DUMP command will be launched so it will be available over time
+# 2) A default html is returned ($defaulthtmlFile)
+
+#find and call the global settings script
+if [ "${SCRIPT_FILENAME}" == "" ]; then
+  SCRIPT_FILENAME=$(pwd)/$0
+fi
+ScriptFolder=$(dirname $SCRIPT_FILENAME)
+cd ${ScriptFolder}
+. ./SetGlobalSettings.sh
+    
+    #if the arduino dump data exists return it    
+if [ -f ${OutputHtml} ]; then
+
+  echo Content-type: text/html
+  echo ""
+  cat ${OutputHtml}
+   #if not return he default and make the arduino to dump his data
+else
+  echo Content-type: text/html
+  echo ""
+  cat ${defaulthtmlFile}
+  
+  ${WebLocation}/startReadingArduino.sh DUMP 
+fi

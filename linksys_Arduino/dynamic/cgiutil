@@ -324,7 +324,7 @@ function load_page ()
     return show_error ("That URL is not valid" .. scriptname)
   end -- if
      
-  scriptname = "./cgi-bin/robot" .. scriptname  -- make local path
+  scriptname = "/www/cgi-bin/jantje" .. scriptname  -- make local path
   
   -- check page exists, to avoid annoying user with Lua traceback message
   local f, err1, err2 = io.open (scriptname)

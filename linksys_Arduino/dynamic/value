@@ -1,2 +1,12 @@
 #!/bin/ash
-cat /tmp/value.txt
+#I'm using a script to return the file ${OutputValue}
+#to avoid the browser caching the data
+if [ "${SCRIPT_FILENAME}" == "" ]; then
+  SCRIPT_FILENAME=$(pwd)/$0
+fi
+ScriptFolder=$(dirname $SCRIPT_FILENAME)
+. ${ScriptFolder}/SetGlobalSettings.sh
+    
+echo Content-type: text/plain
+echo ""
+cat ${OutputValue}

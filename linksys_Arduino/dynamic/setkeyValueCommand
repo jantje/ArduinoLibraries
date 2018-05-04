@@ -1,0 +1,11 @@
+#!/bin/ash
+. /www/cgi-bin/jantje/SetGlobalSettings.sh
+
+mkdir -p ${SlowBigStorage}
+cd ${SlowBigStorage}
+touch values
+res=`setkeyValue values $1 $2`
+
+echo setkeyValueCommand $1 $res
+
+

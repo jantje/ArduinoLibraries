@@ -1,0 +1,8 @@
+#!/bin/ash
+
+
+umount  /mnt/sda1
+dosfsck -a /dev/sda1
+block mount
+
+

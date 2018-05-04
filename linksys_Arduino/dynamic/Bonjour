@@ -1,0 +1,35 @@
+#!/bin/ash
+HOSTS=/etc/hosts
+HOSTSORG=/etc/hosts.org
+HOSTSDYNAMICTMP=/tmp/jantje/hosts.tmp
+HOSTSDYNAMIC=/tmp/jantje/hosts
+mkdir -p /tmp/jantje
+if [ -f ${HOSTSORG} ]; then
+  echo "the avahi workaround had not been undone properly"
+  if [ -h ${HOSTS} ]; then
+    echo "Nothing has been removed."
+    echo "continuing"
+  else
+    if [ -f ${HOSTS} ]; then
+      echo "both " ${HOSTS} " and " ${HOSTSORG} "exist. "
+      echo "quiting"
+      exit
+    else
+      echo ${HOSTS} " was removed but" ${HOSTSORG} " not put back."
+      echo "relinking " ${HOSTS} " to "  ${HOSTSDYNAMIC}
+      echo continuing
+      ln -s ${HOSTSDYNAMIC} ${HOSTS}
+    fi 
+  fi
+else  
+  mv ${HOSTS} ${HOSTSORG}
+  ln -s ${HOSTSDYNAMIC} ${HOSTS}
+fi
+
+while [ 1 ]
+do 
+    cat ${HOSTSORG} > ${HOSTSDYNAMICTMP}
+    avahi-browse -t -r -a -p |grep "^=;wlan0"|awk -F";" '{print($8,$7)}'|sort -u >> ${HOSTSDYNAMICTMP}
+    mv  ${HOSTSDYNAMICTMP}  ${HOSTSDYNAMIC}
+    sleep 60
+ done
