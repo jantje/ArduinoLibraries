@@ -57,7 +57,7 @@ do
    fi
                                     
   else      
-    if [ $DUMPLINE -gt 1000 ]; then
+    if [ $DUMPLINE -gt 10000 ]; then
         let DUMPLINE=0
         MoveLogFile
     fi
