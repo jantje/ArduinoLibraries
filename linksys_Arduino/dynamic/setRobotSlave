@@ -1,4 +1,0 @@
-#!/bin/ash
-#tell the robot to be a slave of the charger
-curl http://marvin1.local/cgi-bin/jantje/set.cgi?Power.ChargerSlave=1
-
