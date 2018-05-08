@@ -12,10 +12,7 @@ stopReadingArduino.sh
 
 ./fixmount
 
-mkdir -p ${CommonHugeRemoteMountPoint}
-umount ${CommonHugeRemoteMountPoint}
-mount -t cifs //${HugeRemoteStorageServer}/home ${CommonHugeRemoteMountPoint} -o user=Marvin2,pass=Marvin2
-mkdir -p ${backupLocation}
+move-log-files-to-nas
 
 #reset the tty
 ${SttyCommand}
