@@ -179,7 +179,7 @@ void GPSModule::parseGPRMCMessage()
 	else
 	{
 		m_LastMessageIsfix = true;
-		Serial.println(p);
+		//Serial.println(p);
 		//extract the latitude
 		p = strchr(p, ',') + 1;
 		m_LastMessageLocation.myLatitude = (p[0] - '0') * 10 + (p[1] - '0');
@@ -245,20 +245,20 @@ void GPSModule::parseGPRMCMessage()
 		m_LastMessageTimeStamp = dt;
 	}
 
-	Serial.println("done");
-	Serial.print("Latitude :");
-	Serial.print(m_LastMessageLocation.myLatitude);
-	Serial.print(" Longitude :");
-	Serial.println(m_LastMessageLocation.myLongitude);
-	Serial.print("isFix :");
-	Serial.println(m_LastMessageIsfix);
-	Serial.print("LastFixMessage :");
-	Serial.println(LastFixMessage);
+//	Serial.println("done");
+//	Serial.print("Latitude :");
+//	Serial.print(m_LastMessageLocation.myLatitude);
+//	Serial.print(" Longitude :");
+//	Serial.println(m_LastMessageLocation.myLongitude);
+//	Serial.print("isFix :");
+//	Serial.println(m_LastMessageIsfix);
+//	Serial.print("LastFixMessage :");
+//	Serial.println(LastFixMessage);
 	m_LastMessageLocation.convertDegreesToDeci();
-	Serial.print("Latitude :");
-	Serial.print(m_LastMessageLocation.myLatitude);
-	Serial.print(" Longitude :");
-	Serial.println(m_LastMessageLocation.myLongitude);
+//	Serial.print("Latitude :");
+//	Serial.print(m_LastMessageLocation.myLatitude);
+//	Serial.print(" Longitude :");
+//	Serial.println(m_LastMessageLocation.myLongitude);
 
 }
 
