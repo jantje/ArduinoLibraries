@@ -12,7 +12,7 @@
 #ifdef USE_SERIAl_LOGGING
 #include "SerialDataInterface.h"
 #endif
-
+extern uint32_t loopMillis;
 class VoltMeter
 {
 	private:

@@ -125,7 +125,7 @@ void GPSModule::loop()
 				parseGPRMCMessage();
 				if (m_LastMessageIsfix)
 				{
-					LastFixMessage = millis();
+					LastFixMessage =  loopMillis;
 					myDistanceBetweenLastFixes_cm = m_LastMessageLocation.distance(m_LastButOneMessageLocation);
 					m_LastButOneMessageLocation = m_LastMessageLocation;
 				}
@@ -149,8 +149,7 @@ void GPSModule::loop()
 
 boolean GPSModule::hasReception(uint32_t since)
 {
-	unsigned long Curtime = millis();
-	return (((Curtime - LastFixMessage) < since) && ((m_LastMessageLocation.myLatitude + m_LastMessageLocation.myLongitude) != 0));
+	return (((loopMillis - LastFixMessage) < since) && ((m_LastMessageLocation.myLatitude + m_LastMessageLocation.myLongitude) != 0));
 }
 
 void GPSModule::parseGPRMCMessage()

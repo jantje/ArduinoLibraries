@@ -57,15 +57,9 @@ long readVcc() {
 
 void VoltMeter::loop() {
     //only reed every 100 ms
-#ifdef LOOPMILLIS
-    extern uint32_t LOOPMILLIS;
-#else
-#define LOOPMILLIS curMillis
-    uint32_t LOOPMILLIS = millis();
 
-#endif
-    if (LOOPMILLIS - my_last_read > 100) {
-        my_last_read = LOOPMILLIS;
+    if (loopMillis - my_last_read > 100) {
+        my_last_read = loopMillis;
 #ifdef PRECISE_VOLTAGE
         long vcc=readVcc();
         myActualReadValue= (analogRead(myPin) *vcc) / 1023;

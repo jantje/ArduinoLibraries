@@ -19,6 +19,8 @@
 #include "SerialDataInterface.h"
 #endif
 
+extern uint32_t loopMillis;
+
 #define BUFFSIZE 85 // the maximum length of a gps message string
                     // According to NMEA spec no longer than 81 chars
 class GPSModule
