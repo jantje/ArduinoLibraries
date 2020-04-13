@@ -27,6 +27,7 @@ VoltMeter::VoltMeter(uint8_t Pin) {
     myMultiplyerValue = 1000;
     myActualReadValue = 0;
     myAveragedReadValue = 0;
+    my_last_read=0;
 }
 #else
 VoltMeter::VoltMeter(uint8_t Pin, uint16_t multiplyer) {
