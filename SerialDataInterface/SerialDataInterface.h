@@ -15,8 +15,10 @@
 #include "SerialStringReader.h" //needed for the streams
 
 
-
-
+//Sometimes ERROR is already defined
+#ifdef ERROR
+#undef ERROR
+#endif
 //Below are some common used string defined in progmem to reduce memory usage
 extern const char LOOPDURATION[] PROGMEM;
 extern const char MULTIPLIER[] PROGMEM;
