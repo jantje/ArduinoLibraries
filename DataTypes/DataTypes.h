@@ -1,5 +1,4 @@
-#ifndef DATATYPES_H_
-#define DATATYPES_H_
+#pragma once
 #include "Arduino.h"
 
 extern int SerialQueueSize; // The size of the serial SendQueue initialize it with SerialQueueSize=ser.availableInSendQueue() after you Serial.begin()
@@ -83,7 +82,3 @@ public:
 protected:
     uint8_t yOff, m, d, hh, mm, ss;
 };
-
-
-
-#endif //DATATYPES_H_
