@@ -1,0 +1,27 @@
+Steps to make the yun(shield) work with webleds
+
+**prepare the yun**
+Make sure your yun(shield) runs the latest version
+it is a good idea to have a safe arduino sketch.If you are not sure upload the blink example
+When using the yunshield do not forget to disable the usb chip like explained here for the mega https://wiki1.dragino.com/index.php/Yun_Shield#Connect_to_Arduino_Mega2560
+
+Note that I had a yunshield that did not want to go to configuration mode after renaming it to marvin3 :-(
+
+
+**prepare storage**
+place a sd card (for yun) or a usb stick (for yun shield) in your computer
+copy the content of this eclipse project (currently named linksys_Arduino and in Jantje/ArduinoLibraries github repository) to the root of the storage
+
+**modify yun(shield)
+plug the storage in the yun(shield)
+ssh into the yun(shield)
+make sure the storage is recognised and mounted at /mnt/sda1
+
+create the folder /mnt/nas
+
+run the following command
+for yun /mnt/sda1/configure/startup 
+
+The yun will reboot
+Upload a sketch (like mowrobot) and enjoy (well very unlikely it will run right away but anyways good luck)
+

@@ -12,7 +12,7 @@ stopReadingArduino.sh
 
 ./fixmount
 
-move-log-files-to-nas
+move-log-files-to-nas.sh
 
 #reset the tty
 ${SttyCommand}

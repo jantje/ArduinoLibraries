@@ -1,0 +1,53 @@
+#to mount a cifs drive (linino)
+opkg update 
+opkg install cifsmount
+opkg install kmod-fs-cifs 
+
+#minicom is a program I use as serial monitor
+opkg install kmod-usb-acm
+opkg install minicom
+
+# tty ...
+opkg install coreutils-tty
+opkg install coreutils-stty
+
+#add /www/cgi-bin/jantje to the path
+echo 'export PATH=${PATH}:/www/cgi-bin/jantje' >>/etc/profile
+
+mkdir -p /www/cgi-bin/jantje
+mkdir -p /www/jantje
+
+
+#copy the latest version of the code to yun
+cp /mnt/sda1/dynamic/* /www/cgi-bin/jantje
+cp /mnt/sda1/static/* /www/jantje
+
+
+
+#add bonjour and arduino parser to startup
+#add the starting of my bridge to the start file of linux
+mv /etc/rc.local /etc/rc.local.org
+grep -v "exit 0" </etc/rc.local.org >/etc/rc.local
+echo >>/etc/rc.local
+echo 'cd /www/cgi-bin/jantje/' >>/etc/rc.local
+echo './startReadingArduino.sh' >>/etc/rc.local
+echo 'exit 0' >>/etc/rc.local
+
+
+#remove - what I think - the security from the console by modifying /etc/inittab
+#remove the line ttyATH0::askfirst:/bin/ash --login 
+#or the alternative line ::askconsole:/bin/ash --login
+mv /etc/inittab /etc/inittab.org
+grep -v "ttyATH0::askfirst:/bin/ash" </etc/inittab.org |grep -v "::askconsole"  >/etc/inittab
+
+
+#reset the board together with linux to avoid unwanted serial data to arrive
+echo "#!/bin/ash" >/bin/reboot
+echo reset-mcu>>/bin/reboot
+echo /sbin/reboot  >>/bin/reboot
+chmod +x /bin/reboot
+
+reboot
+
+
+
