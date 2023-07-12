@@ -254,7 +254,7 @@ html=""
 html = html..makeContent(allfields,"")
 html=html..makeActivableScripts()
 html=html .. COMPILEDATE
-html=html .. '\n<a href="cgiutil/upload.lua">admin page </a>'
+html=html .. '\n<a href="upload.lua">admin page </a>'
 
 print(html)
 
