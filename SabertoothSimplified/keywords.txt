@@ -1,0 +1,10 @@
+# Syntax Coloring for the Sabertooth Simplified Serial Library
+
+# Classes
+SabertoothSimplified	KEYWORD1
+
+# SabertoothSimplified methods
+motor	KEYWORD2
+drive	KEYWORD2
+turn	KEYWORD2
+stop	KEYWORD2

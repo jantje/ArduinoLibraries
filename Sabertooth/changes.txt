@@ -1,0 +1,37 @@
+Arduino Libraries for SyRen/Sabertooth
+Copyright (c) 2012-2013 Dimension Engineering LLC
+http://www.dimensionengineering.com/arduino
+
+1 July 2013, Version 1.5
+- USB Sabertooth Packet Serial Library
+  - Initial release.
+
+1 April 2013, Version 1.4
+- Added documentation.
+- Improved support for Arduino Leonardo.
+- Packet Serial Library
+  - Simplified the code to save space and increase readability.
+
+3 May 2012, Version 1.3
+- Improved compatibility with earlier versions of the Arduino software.
+  Previous versions required Arduino 1.0 or newer, but this version
+  should work back to Arduino 0018 (still in use by Debian Linux 6.0)
+  and possibly earlier.
+  
+  If you are using a version of Arduino older than 1.0, you will need
+  to rename the examples from .ino to .pde to see them in the Examples
+  menu.
+  
+20 April 2012, Version 1.2
+- Packet Serial Library
+  - Added a stop() function to match the command set of the Simplified
+    Serial libraries.
+
+19 April 2012, Version 1.1
+- Packet Serial Library
+  - Added a single-argument motor() function as a convenience for SyRen.
+
+18 April 2012, Version 1.0
+- Initial release.
+
+Please let us know if you run into any bugs! Thanks and enjoy the library!
