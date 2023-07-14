@@ -18,14 +18,15 @@ class TempMeterInterface
 	{
 
 	protected:
-		int16_t myCentiCelsius;
-		boolean myIsError;
+		int16_t myCentiCelsius=0;
+		boolean myIsError=false;
 	public:
 
 #ifdef I_USE_SERIAL_REGISTER
-        void serialRegister(const __FlashStringHelper* Name)
+		virtual void serialRegister(const __FlashStringHelper* Name)
         {
             FieldData::set(Name,F("CentiCelsius"),MOD_OVERVIEW,&myCentiCelsius);
+            FieldData::set(Name,F("isError"),MOD_OVERVIEW,&myIsError);
         }
 #endif
 		virtual void setup()=0;
