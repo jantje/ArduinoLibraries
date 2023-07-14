@@ -35,7 +35,7 @@ class SerialCommunicator
 		static uint16_t myLogDelay;        //The time to wait after a log has been done
 
 		static uint32_t myLoopCounter;  //Counts the number of times loop has been called
-		static uint32_t myMillis;
+		static uint32_t myLastLoopMillis;
 		static uint16_t myAveragebetweenLoops; //The average millis between loop counts
 		static uint16_t myMaxbetweenLoops; //The maximum millis between loop counts
 		static uint32_t myLoopduration; //the duration of the loop
