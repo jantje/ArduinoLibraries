@@ -5,26 +5,28 @@
  *
  * This code is written for a Mega but should be easily adjusted for other arduino compatible boards
  */
-#include "ScooterMotor.h"
+#include "MotorPotmeterDirection.h"
 #include "simplot.h"
-#include "MCP413.h"
+#include "DigitalPotmeterMCP413.h"
+#include "CurrentSensorAnalog.h"
 #define clockwisePin  48
 
 #define  ampPin A7
 uint8_t slavePin =49;
-MCP413 digitalPot(127, slavePin,true);
+DigitalPotmeterMCP413 digitalPot(127, slavePin,true);
 //AmpMeter myAmpMeter(ampPin);
-AmpMeter myAmpMeter(ampPin,10000,0);
+CurrentSensorAnalog myAmpMeter(ampPin,10000,0);
+uint32_t loopMillis;
 
 
-class plotMotor:public ScooterMotor
+class plotMotor:public MotorPotmeterDirection
 {
 	public:
 		void plot()
 		{
 			plot4(Serial,myRequestedSpeed,abs(myActualSpeed),(mySpinsClockWise?LOW:HIGH)*255,myCurrentUsage_cA);
 		};
-		plotMotor():ScooterMotor(clockwisePin,  myAmpMeter,digitalPot)
+		plotMotor():MotorPotmeterDirection(clockwisePin,  myAmpMeter,digitalPot)
 		{
 			//nothing to do here
 		};
@@ -45,6 +47,7 @@ void setup()
 #define DEFAULTDELAY 2000
 void loop()
 {
+		loopMillis=millis();
 	static int state = 0;
 	static uint32_t lastAction = millis();
 	switch (state)

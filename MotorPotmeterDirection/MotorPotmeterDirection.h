@@ -8,7 +8,7 @@
 #ifndef SCOOTERMOTOR_H_
 #define SCOOTERMOTOR_H_
 
-#include "IMotor.h"
+#include "MotorInterface.h"
 #include "SerialDataInterface.h"
 #include "CurrentSensorInterface.h"
 #include "DigitalPotmeterInterface.h"
@@ -21,7 +21,7 @@
  * The load of the motor is measused with a ampere meter connected to a analog pin
  * The switch between clockwise and counterclockwise is only done when the motor is standing still.
  */
-class MotorPotmeterDirection: public IMotor
+class MotorPotmeterDirection: public MotorInterface
 {
 	protected :
 		bool	mySpinsClockWise;
@@ -31,7 +31,9 @@ class MotorPotmeterDirection: public IMotor
 		DigitalPotmeterInterface &myPotmeter;
 		void setPotValue();
 	public:
+#ifdef I_USE_SERIAL_REGISTER
 		void serialRegister(const __FlashStringHelper* Name);
+#endif
 		/**
 		 * The constructor of the scooter motor
 		 *
@@ -44,6 +46,7 @@ class MotorPotmeterDirection: public IMotor
 		virtual void setup();
 		virtual void motorOn();
 		virtual void motorOff();
+		bool emergencyBreak(){emergencyBreak(false);};
 		virtual bool emergencyBreak(bool immediatlyReturn);
 
 };

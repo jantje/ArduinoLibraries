@@ -128,6 +128,7 @@ bool MotorPotmeterDirection::emergencyBreak(bool immediatlyReturn)
 	return (myActualSpeed == 0) && ((millis() - MyLastactionTime > 200));
 }
 
+#ifdef I_USE_SERIAL_REGISTER
 void MotorPotmeterDirection::serialRegister(const __FlashStringHelper* Name)
 {
 	IMotor::serialRegister(Name);
@@ -137,4 +138,5 @@ void MotorPotmeterDirection::serialRegister(const __FlashStringHelper* Name)
 	FieldData::setNext( F("ClockwisePin"), 0, &myClockwisePin);
 #endif
 }
+#endif
 
