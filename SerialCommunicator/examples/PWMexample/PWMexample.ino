@@ -10,8 +10,6 @@ Stream &SerialInput = Serial;
 Stream &SerialOutput = Serial;
 Stream &SerialError = Serial;
 
-#define MAXFIELDS 60
-FieldData AllFields[MAXFIELDS];
 const char mySketchName[] PROGMEM="set PWM sample";
 
 class pwmPin

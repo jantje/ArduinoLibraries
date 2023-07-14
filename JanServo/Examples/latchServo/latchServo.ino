@@ -24,10 +24,7 @@ Stream &SerialError = THESERIAL;  //This channel has been added for error loggin
 
 JanConstraintServo servoLatch(9, 0, 180, servoUnlock);
 
-//This is where the memory objects are saved for the communicator
-// It is vital this is big enough. If this is not big enough you will get wierd results
-#define MAXFIELDS 70
-FieldData AllFields[MAXFIELDS];
+
 
 
 int val;    // variable to read the value from the analog pin

@@ -14,11 +14,18 @@
 #pragma once
 #include "Arduino.h"
 #include "MotorInterface.h"
-class Motor_ModBus_Siemens_V20: public MotorInterface
+class MotorModBusSiemensV20: public MotorInterface
 	{
 	private:
-		uint8_t slaveAddress=0;
-	public:
+		uint8_t mySlaveAddress=0;
+
+	public :
+		MotorModBusSiemensV20(uint8_t slaveAddress);
+		void loop();
+		void setup();
+		void motorOn();
+		void motorOff();
+		bool emergencyBreak();
 
 
 	};

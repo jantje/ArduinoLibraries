@@ -83,11 +83,6 @@ Stream &SerialInput = THESERIAL;
 Stream &SerialOutput = THESERIAL;
 Stream &SerialError = THESERIAL;  //This channel has been added for error logging
 
-//This is where the memory objects are saved for the communicator
-// It is vital this is big enough. If this is not big enough you will get wierd results
-#define MAXFIELDS 70
-FieldData AllFields[MAXFIELDS];
-
 
 //The setup function is called once at startup of the sketch
 void setup()

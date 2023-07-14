@@ -17,6 +17,14 @@ const char PINVALUE[] PROGMEM ="PinValue";
 const char PIN[] PROGMEM = "Pin";
 const char ERROR[] PROGMEM = "ERROR: ";
 
+//This is where the memory objects are saved for the communicator
+// It is vital this is big enough. If this is not big enough you will get wierd results
+#ifndef MAXSERIAL_DATA_INTERFACE_FIELDS
+#warning "using the default number of fields for the serial communication"
+#define MAXSERIAL_DATA_INTERFACE_FIELDS 70
+#endif
+FieldData AllFields[MAXSERIAL_DATA_INTERFACE_FIELDS];
+
 uint8_t lastFieldIndex = 0;
 
 /**

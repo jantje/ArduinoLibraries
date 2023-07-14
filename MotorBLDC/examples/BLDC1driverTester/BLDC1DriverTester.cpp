@@ -7,8 +7,6 @@ SkidDriverBLDC driver(7,5, 6,4);
 Stream &SerialOutput = Serial;
 Stream &SerialInput = Serial;
 
-#define MAXFIELDS 50
-FieldData AllFields[MAXFIELDS];
 const char mySketchName[] PROGMEM= "BLDC1DriverTester";
 
 SerialCommunicator myCommunicator;

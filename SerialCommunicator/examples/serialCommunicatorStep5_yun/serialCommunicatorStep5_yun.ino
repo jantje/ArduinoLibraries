@@ -40,9 +40,6 @@ Stream &SerialOutput = THESERIAL;
 Stream &SerialError = THESERIAL;
 
 
-#define MAXFIELDS 70
-FieldData AllFields[MAXFIELDS];
-
 //I would do this normally with a class but for fun lets use a simple array only
 // the array index corresponds to the analog pin number
 #define NUM_POTENTIO_METERS 3 //this must be minimal 2 as we use A0 and A1 for setting the led

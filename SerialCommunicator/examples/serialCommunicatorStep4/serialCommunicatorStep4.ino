@@ -60,9 +60,6 @@ Stream &SerialOutput = THESERIAL;
 Stream &SerialError = THESERIAL;
 
 
-#define MAXFIELDS 70
-FieldData AllFields[MAXFIELDS];
-
 
 void setup()
 {

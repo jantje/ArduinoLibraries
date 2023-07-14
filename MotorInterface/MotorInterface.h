@@ -27,6 +27,14 @@ class MotorInterface
 		virtual void motorOff()=0;
 
 		/**
+		 * EmergencyBreak stops the drive engines directly powering the coils
+		 * To avoid powerspikes the power is gradually decreased
+		 * This method waits untill the motor is stopped
+		 * The method returns true when the attached motors are stalled
+		 */
+		virtual bool emergencyBreak()=0;
+
+		/**
 		 * The last time the speed has changed.
 		 */
 		uint64_t getLastSpeedChangeTime()
@@ -34,13 +42,6 @@ class MotorInterface
 			return myLastSpeedChangeTime;
 		}
 
-		/**
-		 * EmergencyBreak stops the drive engines directly powering the coils
-		 * To avoid powerspikes the power is gradually decreased
-		 * This method waits untill the motor is stopped
-		 * The method returns true when the attached motors are stalled
-		 */
-		virtual bool emergencyBreak()=0;
 
 		/**
 		 * returns wether the motor is running at the requested speed.

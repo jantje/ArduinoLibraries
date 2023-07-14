@@ -31,10 +31,6 @@ Stream &SerialError = THESERIAL;
 //The name of the program. This name is visible in the html page
 const char mySketchName[] PROGMEM= "WebPixels";
 
-//Here we will store all the pointers to data and names
-#define MAXFIELDS (NUMPIXELS * 4+10)
-FieldData AllFields[MAXFIELDS];
-
 //the communication channel
 SerialCommunicator myCommunicator;
 

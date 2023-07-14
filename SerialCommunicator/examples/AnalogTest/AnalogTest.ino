@@ -13,10 +13,6 @@ Stream &SerialError = THESERIAL;
 
 const char mySketchName[] PROGMEM= "AnalogTester";
 
-//Here we will store all the pointers to data and names
-#define MAXFIELDS 160
-FieldData AllFields[MAXFIELDS];
-
 //the communication channel
 SerialCommunicator myCommunicator;
 

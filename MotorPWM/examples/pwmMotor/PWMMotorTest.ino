@@ -19,8 +19,7 @@ Stream &SerialOutput = Serial;
 Stream &SerialInput = Serial;
 Stream &SerialError = Serial;
 
-#define MAXFIELDS 50
-FieldData AllFields[MAXFIELDS];
+
 const char mySketchName[] PROGMEM= "PWMMotorTester";
 
 SerialEEPROMCommunicator myCommunicator;
