@@ -2,7 +2,7 @@
 
 #include "MotorMegaMoto.h"
 
-const char * mySketchName = "MegaMoto tester";
+const char mySketchName[] = "MegaMoto tester";
 Stream &SerialInput=Serial;
 Stream &SerialOutput=Serial;
 Stream &SerialError=Serial;
