@@ -7,9 +7,14 @@
 
 #include "SerialStringReader.h"
 
-char SerialStringReader::myMessage[MAX_MESSAGE_LENGTH + 1];       //The message (or part of) that has been received
-uint8_t SerialStringReader::myMessageIndex = 0; //The length of the message (next character to write)
-boolean SerialStringReader::myHasMessage = false;
+//char SerialStringReader::myMessage[MAX_MESSAGE_LENGTH + 1];       //The message (or part of) that has been received
+//uint8_t SerialStringReader::myMessageIndex = 0; //The length of the message (next character to write)
+//boolean SerialStringReader::myHasMessage = false;
+
+SerialStringReader::SerialStringReader(	Stream & theStream	)
+:myStream(theStream)
+	{	myMessage[0]=0;
+	};
 
 void SerialStringReader::flush()
 {
@@ -21,9 +26,9 @@ void SerialStringReader::flush()
 	{
 		if (hasReadSomething) delay(200); //If data has been found wait a while for more data
 		hasReadSomething = false;
-		while (SerialInput.available())
+		while (myStream.available())
 		{
-			SerialInput.read();
+				myStream.read();
 			hasReadSomething = true;
 		}
 	} while (hasReadSomething);
@@ -32,9 +37,9 @@ void SerialStringReader::flush()
 
 void SerialStringReader::loop()
 {
-	while ((!myHasMessage) && (SerialInput.available() > 0))
+	while ((!myHasMessage) && (myStream.available() > 0))
 	{
-		char aChar = SerialInput.read();
+		char aChar = myStream.read();
 		if ((aChar == '\n') || (aChar == '\r'))
 		{
 			myHasMessage = (myMessageIndex!=0); //this way if \n and \r are send we do not get 2 messages
@@ -45,9 +50,9 @@ void SerialStringReader::loop()
 			myMessage[++myMessageIndex] = 0; // Keep the string NULL terminated
 			if (myMessageIndex >= MAX_MESSAGE_LENGTH)
 			{
-				SerialOutput.print(F("Message to long. Max: "));
-				SerialOutput.println(MAX_MESSAGE_LENGTH);
-				SerialOutput.println(myMessage);
+				SerialError.print(F("Message to long. Max: "));
+				SerialError.println(MAX_MESSAGE_LENGTH);
+				SerialError.println(myMessage);
 				myMessageIndex=0;
 			}
 		}

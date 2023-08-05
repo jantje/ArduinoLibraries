@@ -5,8 +5,7 @@
  *      Author: BE04258
  */
 
-#ifndef SERIALCOMMUNICATOR_H_
-#define SERIALCOMMUNICATOR_H_
+#pragma once
 #include "Arduino.h"
 #include "SerialStringReader.h"
 #include "SerialDataInterface.h"
@@ -29,26 +28,29 @@
 class SerialCommunicator
 {
 	protected:
-		static uint8_t myLogLevel;         // The Log Level used
-		static uint32_t mylastLog;         //the last time we logged
-		static SerialStringReader myStringSerial; //the class to read string from the serial monitor
-		static uint16_t myLogDelay;        //The time to wait after a log has been done
+		 Stream &SerialOutput;
+		 Stream &SerialError;
+		 uint8_t myLogLevel=1;         // The Log Level used
+		 uint32_t mylastLog=0;         //the last time we logged
+		 SerialStringReader mySerialStringReader; //the class to read string from the serial monitor
+		 uint16_t myLogDelay=1000;        //The time to wait after a log has been done
 
-		static uint32_t myLoopCounter;  //Counts the number of times loop has been called
-		static uint32_t myLastLoopMillis;
-		static uint16_t myAveragebetweenLoops; //The average millis between loop counts
-		static uint16_t myMaxbetweenLoops; //The maximum millis between loop counts
-		static uint32_t myLoopduration; //the duration of the loop
-		static uint32_t myLogduration; //the duration of the last log
-		static int16_t mySerialQueueSize; //The size of the serial queue
+		 uint32_t myLoopCounter=0;  //Counts the number of times loop has been called
+		 uint32_t myLastLoopMillis=0;
+		 uint16_t myAveragebetweenLoops=0; //The average millis between loop counts
+		 uint16_t myMaxbetweenLoops=0; //The maximum millis between loop counts
+		 uint32_t myLoopduration=0; //the duration of the loop
+		 uint32_t myLogduration=0; //the duration of the last log
+		 int16_t mySerialQueueSize=0; //The size of the serial queue
 		/**
 		 * Call this method when a message has been received.
 		 * The message will be parsed in the next call to Loop.
 		 */
 		virtual void setReceivedMessage(const char* newMessage);
+		virtual ~SerialCommunicator(){};
 
-		static void logValue();
-		static void dumpAllFields(); // Dump all the values and settings of all the fields in a readable format
+		 void logValue();
+		 void dumpCommands();
 
 //#ifdef I_USE_RESET
 //		static uint8_t myResetPin;  //The pin used to rest Arduino
@@ -57,14 +59,14 @@ class SerialCommunicator
 //#endif
 
 	public:
-		SerialCommunicator();
+		SerialCommunicator(Stream &commStream,Stream & outputStream,Stream & errorStream);
 
 		/**
 		 * Initializes the class.
 		 * Call this method in your setup()
 		 */
-		static void serialRegister(const __FlashStringHelper* Name);
-		static void setup();
+		void serialRegister(const __FlashStringHelper* Name);
+		void setup();
 
 		/**
 		 * Add the Loop() in your loop();
@@ -78,5 +80,4 @@ extern const char mySketchName[] PROGMEM;
 void waitForYunToBoot();
 
 
-#endif /* SERIALCOMMUNICATOR_H_ */
 

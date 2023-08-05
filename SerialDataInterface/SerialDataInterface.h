@@ -40,7 +40,7 @@ extern const char MULTIPLIER_DIV_1000[] PROGMEM;
 class FieldData;
 extern FieldData AllFields[];
 extern uint8_t lastFieldIndex;
-typedef void (*FieldVisitor)( FieldData& fieldData);
+typedef void (*FieldVisitor)( Stream& serial, FieldData& fieldData);
 
 class FieldData: public FieldInfo
 {
@@ -72,12 +72,12 @@ class FieldData: public FieldInfo
 #endif
 
 		} myValue;
-		void dump() const;  //dumps the content to a stream
+		void dump(Stream &serial) const;  //dumps the content to a stream
 		bool setValue(const char * strValue);
 		const char * getValue(char * buffer,int bufferSize)const; // get a string representation of the value
 
 		static FieldData* findField(const char * fieldName);
-		static void visitAllFields(FieldVisitor visitorfunc,uint8_t all);
+		static void visitAllFields(FieldVisitor visitorfunc, Stream& serial, uint8_t all);
 
 
 		static void setNext( const __FlashStringHelper * FieldName, uint8_t modFlag, uint16_t* data)
@@ -168,6 +168,9 @@ class FieldData: public FieldInfo
 					set(  ClassName,   FieldName,  modFlag,  data,_bool);
 				}
 
+				static void setNext(const __FlashStringHelper * FieldName, uint8_t modFlag, const __FlashStringHelper ** data){
+						set(  AllFields[lastFieldIndex-1].myClassName, FieldName, modFlag,  data);
+				}
 				static void set(const __FlashStringHelper *  ClassName, const __FlashStringHelper * FieldName, uint8_t modFlag, const __FlashStringHelper ** data)
 					{
 					set(  ClassName,   FieldName,  modFlag,  data,_FlashStringHelper);

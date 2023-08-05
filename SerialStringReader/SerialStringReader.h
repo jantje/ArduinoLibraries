@@ -5,10 +5,8 @@
  *      Author: jan baeyens aka Jantje
  */
 
-#ifndef SERIALSTRINGREADER_H_
-#define SERIALSTRINGREADER_H_
+#pragma once
 #include "Arduino.h"
-
 
 /* modify the line below if you want less memory used by the lib
  * and increase if you need a longer command line.
@@ -24,46 +22,55 @@
  *
  * look at the example on how to use this
  */
-		extern Stream &SerialInput;
-		extern Stream &SerialOutput;
-		extern Stream &SerialError;
+
+extern Stream &SerialError;
 
 class SerialStringReader
-{
+	{
 	private:
-		static char myMessage[MAX_MESSAGE_LENGTH +1];       //The message (or part of) that has been received
-		static uint8_t myMessageIndex; //The length of the message (next character to write)
-		static boolean myHasMessage;   //Is the message complete?
-
+		char myMessage[MAX_MESSAGE_LENGTH + 1];       //The message (or part of) that has been received
+		uint8_t myMessageIndex=0; //The length of the message (next character to write)
+		boolean myHasMessage=false;   //Is the message complete?
 
 	public:
-		SerialStringReader(		){	myMessage[0]=0;};
+		Stream &myStream;
+		SerialStringReader(Stream &theStream);
 		/**
 		 * Initializes the class. It does not initialize the serial communication
 		 * This is something you will have to do before calling this method
 		 * Call this method in your setup() after setting up the serial monitor
 		 */
-		static void setup(){};
+		void setup()
+			{
+			}
+		;
 		/**
 		 * Add the Loop() in your loop();
 		 */
-		static void loop();
+		void loop();
 		/**
 		 * empty all data in the serial queue and buffer.
 		 */
-		static void flush();
+		void flush();
 		/**
 		 * Call this method to know whether a full message has arrived.
 		 */
-		static boolean messageReceived(){return myHasMessage;};
+		boolean messageReceived()
+			{
+				return myHasMessage;
+			}
+		;
 		/**
 		 * GetMessage should only be called when MessageReceived returned true.
 		 * It resets the MessageReceived flag.
 		 * WARNING The value returned points to the same buffer as used by the class.
 		 * If you want to keep the value for later reference you need to make a copy.
 		 */
-		static char * getMessage(){myHasMessage=false; return myMessage;};
-};
+		char* getMessage()
+			{
+				myHasMessage = false;
+				return myMessage;
+			}
+		;
+	};
 
-
-#endif /* SERIALSTRINGREADER_H_ */

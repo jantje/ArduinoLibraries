@@ -8,10 +8,6 @@
 #include "SerialStringReader.h"
 #include "watchdog.h"
 
-#if ARDUINO<158
-#error This code needs Arduino IDE 1.5.8 or later
-#endif
-
 #ifdef MAX_MILLIS_IN_LOOP_TO_START
 extern uint32_t loopMillis;
 #endif
@@ -30,36 +26,24 @@ const char GET[] PROGMEM ="GET ";
 const char setkeyValue[] PROGMEM = "setkeyValueCommand ";
 const char getkeyValue[] PROGMEM = "getkeyValueCommand ";
 
-uint8_t SerialCommunicator::myLogLevel;         // The Log Level used
-uint32_t SerialCommunicator::mylastLog;
-SerialStringReader SerialCommunicator::myStringSerial; //the class to read string from the serial monitor
-uint16_t SerialCommunicator::myLogDelay;        //The time to wait after a log has been done
-
-uint32_t SerialCommunicator::myLoopCounter;  //Counts the number of times loop has been called
-uint32_t SerialCommunicator::myLastLoopMillis; //to show the millis since startup
-uint16_t SerialCommunicator::myAveragebetweenLoops; //The average millis between loop counts
-uint16_t SerialCommunicator::myMaxbetweenLoops; //The maximum millis between loop counts
-uint32_t SerialCommunicator::myLoopduration; //the duration of the loop
-uint32_t SerialCommunicator::myLogduration; //the duration of the last log
-int16_t SerialCommunicator::mySerialQueueSize; //The size of the stream queue
 //#ifdef I_USE_RESET
 //uint8_t SerialCommunicator::myResetPin = 0;  //The pin used to rest Arduino
 //uint16_t SerialCommunicator::myResetDelay = 800;//The delay before a reset is actioned
 //#endif
 
-static void logValueVisitor(FieldData &fieldData)
+static void logValueVisitor(Stream &serial, FieldData &fieldData)
 	{
-		SerialOutput.print(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
-		SerialOutput.print(FIELDSEPERATOR);
+		serial.print(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
+		serial.print(FIELDSEPERATOR);
 	}
-static void logHeaderVisitor(FieldData &fieldData)
+static void logHeaderVisitor(Stream &serial, FieldData &fieldData)
 	{
-		SerialOutput.print(fieldData.myClassName);
-		SerialOutput.print(CLASSSEPERATOR);
-		SerialOutput.print(fieldData.myFieldName);
-		SerialOutput.print(FIELDSEPERATOR);
+		serial.print(fieldData.myClassName);
+		serial.print(CLASSSEPERATOR);
+		serial.print(fieldData.myFieldName);
+		serial.print(FIELDSEPERATOR);
 	}
-static void dumpVisitor(FieldData &fieldData)
+static void dumpVisitor(Stream &serial, FieldData &fieldData)
 	{
 		/*
 		 * If you get an error here about wdt_reset not defined and you are building for teensy
@@ -76,35 +60,35 @@ static void dumpVisitor(FieldData &fieldData)
 		 *
 		 */
 		wdt_reset(); //make sure the watch dog does not trigger
-		fieldData.dump();
+		fieldData.dump(serial);
 	}
 
-static void dumpWritableData(FieldData &fieldData)
+static void dumpWritableData(Stream &serial, FieldData &fieldData)
 	{
 		if ((fieldData.myModFlag & MOD_WRITE) != MOD_WRITE) return;
-		SerialOutput.print((__FlashStringHelper*) SET);
-		SerialOutput.print(fieldData.myClassName);
-		SerialOutput.print(CLASSSEPERATOR);
-		SerialOutput.print(fieldData.myFieldName);
-		SerialOutput.print('=');
-		SerialOutput.println(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
+		serial.print((__FlashStringHelper*) SET);
+		serial.print(fieldData.myClassName);
+		serial.print(CLASSSEPERATOR);
+		serial.print(fieldData.myFieldName);
+		serial.print('=');
+		serial.println(fieldData.getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
 	}
 
-static void dumpCommands()
+void SerialCommunicator::dumpCommands()
 	{
 		/*
 		 * If you run out of program space you can save by comenting this verboze proza
 		 * That will make you can not query the commands but it also means you have more
 		 * program space
 		 * */
-		SerialOutput.println(F("Following commands are supported"));
-		SerialOutput.println(F("? to show this info"));
-		SerialOutput.println(F("DUMP full memory dump"));
-		SerialOutput.println(F("GET [Name] 1 field memory dump"));
-		SerialOutput.println(F("SET dump all the set commands"));
-		SerialOutput.println(F("SET [Field]=[value] set value of field"));
-		SerialOutput.println(F("LOG_VALUE LOG all the values"));
-		SerialOutput.println(F("LOG HEADER LOSerialOutput.he names"));
+		mySerialStringReader.myStream.println(F("Following commands are supported"));
+		mySerialStringReader.myStream.println(F("? to show this info"));
+		mySerialStringReader.myStream.println(F("DUMP full memory dump"));
+		mySerialStringReader.myStream.println(F("GET [Name] 1 field memory dump"));
+		mySerialStringReader.myStream.println(F("SET dump all the set commands"));
+		mySerialStringReader.myStream.println(F("SET [Field]=[value] set value of field"));
+		mySerialStringReader.myStream.println(F("LOG_VALUE LOG all the values"));
+		mySerialStringReader.myStream.println(F("LOG HEADER LOSerialOutput.he names"));
 	}
 
 //#ifdef I_USE_RESET
@@ -127,10 +111,10 @@ static void dumpCommands()
 
 void SerialCommunicator::logValue()
 	{
-		SerialOutput.print((__FlashStringHelper*) LOG_VALUE);
-		SerialOutput.print(FIELDSEPERATOR);
-		FieldData::visitAllFields(logValueVisitor, true);
-		SerialOutput.println();
+		mySerialStringReader.myStream.print((__FlashStringHelper*) LOG_VALUE);
+		mySerialStringReader.myStream.print(FIELDSEPERATOR);
+		FieldData::visitAllFields(logValueVisitor, mySerialStringReader.myStream, true);
+		mySerialStringReader.myStream.println();
 	}
 /*
  * This method does the repetitive task of the class.
@@ -149,11 +133,11 @@ void SerialCommunicator::loop()
 		myLoopCounter++;
 		previousLoopMillis = myLastLoopMillis;
 
-		myStringSerial.loop();
-		if (myStringSerial.messageReceived())
+		mySerialStringReader.loop();
+		if (mySerialStringReader.messageReceived())
 			{
-				SerialOutput.println(myStringSerial.getMessage());
-				setReceivedMessage(myStringSerial.getMessage());
+				mySerialStringReader.myStream.println(mySerialStringReader.getMessage());
+				setReceivedMessage(mySerialStringReader.getMessage());
 			}
 		if ((myLogLevel & 1) == 1)
 			{
@@ -171,7 +155,7 @@ void SerialCommunicator::loop()
 						 * add the following to stream.h after the Available method
 						 * virtual int availableForWrite(void){return 0;};
 						 */
-						int availableForWrite = SerialOutput.availableForWrite();
+						int availableForWrite = mySerialStringReader.myStream.availableForWrite();
 						if (availableForWrite == mySerialQueueSize) //only when the buffer is completely empty transmit data
 							{
 								uint32_t logstart = millis();
@@ -191,6 +175,15 @@ void SerialCommunicator::loop()
 		myLoopduration = millis() - myLastLoopMillis;
 
 	}
+static void dumpAllFields(Stream &serial)
+	{
+		serial.println(F("Dumping all fields"));
+		serial.print(F("SketchName\t"));
+		serial.println((__FlashStringHelper*) mySketchName);
+		serial.print(F("CompileDate\t"));
+		serial.println(F(__DATE__));
+		FieldData::visitAllFields(dumpVisitor, serial, true);
+	}
 
 /*
  * This method parses a incoming string (the message is expected to be complete)
@@ -200,31 +193,31 @@ void SerialCommunicator::setReceivedMessage(const char *newMessage)
 	{
 		if (strcmp_P(newMessage, DUMP) == 0)
 			{
-				dumpAllFields();
+				dumpAllFields(mySerialStringReader.myStream);
 			} else if (strncmp_P(newMessage, GET, 4) == 0)
 			{
-				SerialOutput.println((__FlashStringHelper*) GET);
+				mySerialStringReader.myStream.println((__FlashStringHelper*) GET);
 				FieldData *fieldData = FieldData::findField(newMessage + 4);
-				if (fieldData != 0) fieldData->dump();
+				if (fieldData != 0) fieldData->dump(mySerialStringReader.myStream);
 			} else if (strncmp_P(newMessage, SET, 4) == 0)
 			{
-				SerialOutput.println((__FlashStringHelper*) SET);
+				mySerialStringReader.myStream.println((__FlashStringHelper*) SET);
 				FieldData *fp = FieldData::findField(newMessage + 4);
 				if (fp != 0)
 					{
-						fp->setValue(newMessage + 4 + strlen_P((const char*) fp->myClassName) + strlen_P((const char*) fp->myFieldName) + 2);
-						fp->dump();
+						fp->setValue(newMessage + 4 + strlen_P((const char* ) fp->myClassName) + strlen_P((const char* ) fp->myFieldName) + 2);
+						fp->dump(mySerialStringReader.myStream);
 					}
 			} else if (strncmp_P(newMessage, SET, 3) == 0)
 			{
-				SerialOutput.println((__FlashStringHelper*) SET);
-				FieldData::visitAllFields(dumpWritableData, true);
+				mySerialStringReader.myStream.println((__FlashStringHelper*) SET);
+				FieldData::visitAllFields(dumpWritableData, mySerialStringReader.myStream, true);
 			} else if (strcmp_P(newMessage, LOG_HEADER) == 0)
 			{
-				SerialOutput.print((__FlashStringHelper*) LOG_HEADER);
-				SerialOutput.print(FIELDSEPERATOR);
-				FieldData::visitAllFields(logHeaderVisitor, true);
-				SerialOutput.println();
+				mySerialStringReader.myStream.print((__FlashStringHelper*) LOG_HEADER);
+				mySerialStringReader.myStream.print(FIELDSEPERATOR);
+				FieldData::visitAllFields(logHeaderVisitor, mySerialStringReader.myStream, true);
+				mySerialStringReader.myStream.println();
 				return;
 			} else if (strcmp_P(newMessage, LOG_VALUE) == 0)
 			{
@@ -248,18 +241,9 @@ void SerialCommunicator::setReceivedMessage(const char *newMessage)
 					}
 				return;
 			}
-		SerialOutput.println((__FlashStringHelper*) DONE);
+		mySerialStringReader.myStream.println((__FlashStringHelper*) DONE);
 	}
 
-void SerialCommunicator::dumpAllFields()
-	{
-		SerialOutput.println(F("Dumping all fields"));
-		SerialOutput.print(F("SketchName\t"));
-		SerialOutput.println((__FlashStringHelper*) mySketchName);
-		SerialOutput.print(F("CompileDate\t"));
-		SerialOutput.println(F(__DATE__));
-		FieldData::visitAllFields(dumpVisitor, true);
-	}
 //#ifdef I_USE_RESET
 //SerialCommunicator::SerialCommunicator(uint8_t resetPin)
 //{
@@ -267,21 +251,16 @@ void SerialCommunicator::dumpAllFields()
 //	myResetDelay = 300;
 //}
 //#else
-SerialCommunicator::SerialCommunicator()
+SerialCommunicator::SerialCommunicator(Stream &commStream, Stream &outputStream, Stream &errorStream)
+				:
+				mySerialStringReader(commStream), SerialOutput(outputStream), SerialError(errorStream)
 	{
-//#endif
-		myLogLevel = 1;
-		myLogDelay = 1000;
-		myLoopCounter = 0; /*Counts the number of times loop has been called*/
-		myAveragebetweenLoops = 0;/*The average millis between loop counts*/
-		myMaxbetweenLoops = 0;/*The maximum millis between loop counts*/
-
 	}
 
 void SerialCommunicator::serialRegister(const __FlashStringHelper* Name)
 	{
-		FieldData::set(Name, F("logLevel"), MOD_WRITE | MOD_SAVE, &myLogLevel);
-		FieldData::setNext(F("DelaybetweenLogs"), MOD_WRITE | MOD_SAVE, &myLogDelay);
+		FieldData::set(Name, F("LogLevel"), MOD_WRITE | MOD_SAVE, &myLogLevel);
+		FieldData::setNext(F("DelayBetweenLogs"), MOD_WRITE | MOD_SAVE, &myLogDelay);
 		FieldData::setNext(F("LoopCounter"), MOD_NONE, &myLoopCounter);
 		FieldData::setNext(F("millis"), MOD_OVERVIEW, &myLastLoopMillis);
 		FieldData::setNext(F("Avg_Loop"), MOD_NONE, &myAveragebetweenLoops);
@@ -302,12 +281,12 @@ void SerialCommunicator::setup()
 			{
 				delay(200);			//wait 200 ms in that time interval the queue should have been processed a bit
 				oldSerialQueueSize = mySerialQueueSize;
-				mySerialQueueSize = SerialOutput.availableForWrite();
+				mySerialQueueSize = mySerialStringReader.myStream.availableForWrite();
 			} while (mySerialQueueSize != oldSerialQueueSize);
 		SerialOutput.print("SerialQueueSize =");
 		SerialOutput.println(mySerialQueueSize);
 
-		myStringSerial.setup();
+		mySerialStringReader.setup();
 		mylastLog = millis();
 	}
 

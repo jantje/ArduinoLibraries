@@ -93,8 +93,8 @@ void SerialBridgeCommunicator::setReceivedMessage(const char* newMessage)
 
 void SerialBridgeCommunicator::setup()
 {
+		SerialCommunicator::setup();
 	readData();
-	SerialCommunicator::setup();
 }
 
 
@@ -106,25 +106,26 @@ void SerialBridgeCommunicator::setup()
  */
 void SerialBridgeCommunicator::runSynchronousShellCommand(const char* command, char* returnBuffer, uint8_t ReturnBuffersize)
 {
-	SerialOutput.print("EXEC:");
-	SerialOutput.println(command);
+	runShellCommand(command);
 	unsigned long startTime = millis();
 
-	myStringSerial.flush(); //All data already in the serial queue and still comming is disregarded.
+	mySerialStringReader.flush(); //All data already in the serial queue and still comming is disregarded.
 	do
 	{
-		myStringSerial.loop();
+		mySerialStringReader.loop();
 		wdt_reset(); //make sure the watch dog does not trigger
-	} while (!(myStringSerial.messageReceived() || ((millis() - startTime) > 5000)));
-	strncpy(returnBuffer, myStringSerial.getMessage(), ReturnBuffersize);
+	} while (!(mySerialStringReader.messageReceived() || ((millis() - startTime) > 5000)));
+	strncpy(returnBuffer, mySerialStringReader.getMessage(), ReturnBuffersize);
 }
+
+SerialBridgeCommunicator * non_Thread_save_SerialBridgeCommunicator;
 
 
 /**
  * Asynchronously saves the value of a field on the linux site
  * This method will only return after the Linux command returns the expected result
  */
-static void saveAfield(FieldData& fieldData)
+static void saveAfield(Stream &serial,FieldData& fieldData)
 {
 	// construct the linux command and put it in commonlyUsedBuffer
 	strlcpy_P(commonlyUsedBuffer, setkeyValue, commonlyUsedBuffersize);
@@ -147,19 +148,19 @@ static void saveAfield(FieldData& fieldData)
 	char resultbuffer[BUFFERSIZE];
 	do
 	{
-		myCommunicator.runSynchronousShellCommand(commonlyUsedBuffer, resultbuffer, BUFFERSIZE);
-		SerialOutput.println(resultbuffer);
+		non_Thread_save_SerialBridgeCommunicator->runSynchronousShellCommand(commonlyUsedBuffer, resultbuffer, BUFFERSIZE);
+		serial.println(resultbuffer);
 	} while (strcmp(expectedResult, resultbuffer) != 0);
 
 }
-
 
 /**
  * The save data visitor method
  */
 void SerialBridgeCommunicator::saveData()
 {
-	FieldData::visitAllFields(saveAfield, false);
+		non_Thread_save_SerialBridgeCommunicator=this;
+	FieldData::visitAllFields(saveAfield,mySerialStringReader.myStream, false);
 }
 
 
@@ -167,7 +168,7 @@ void SerialBridgeCommunicator::saveData()
  * Asynchronously reads a field from the linux side
  * This method will only return after the read has been successful
  */
-static void readAfield(FieldData& fieldData)
+static void readAfield(Stream &serial,FieldData& fieldData)
 {
 	//Put the Linux read command in commonlyUsedBuffer
 	strlcpy_P(commonlyUsedBuffer, getkeyValue, commonlyUsedBuffersize);
@@ -187,8 +188,10 @@ static void readAfield(FieldData& fieldData)
 	char resultbuffer[BUFFERSIZE];
 	do
 	{
-		myCommunicator.runSynchronousShellCommand(commonlyUsedBuffer, resultbuffer, BUFFERSIZE);
-		SerialOutput.println(resultbuffer);
+		non_Thread_save_SerialBridgeCommunicator->runSynchronousShellCommand(commonlyUsedBuffer, resultbuffer, BUFFERSIZE);
+//		serial.println(resultbuffer);
+//		serial.println(".");
+		delay(100);
 	} while (strncmp(expectedResultStart, resultbuffer, strlen(expectedResultStart)) != 0);
 
 	//Set the received value
@@ -200,5 +203,11 @@ static void readAfield(FieldData& fieldData)
  */
 void SerialBridgeCommunicator::readData()
 {
-	FieldData::visitAllFields(readAfield, false);
-}
+		non_Thread_save_SerialBridgeCommunicator=this;
+	FieldData::visitAllFields(readAfield,mySerialStringReader.myStream, false);
+	}
+
+SerialBridgeCommunicator::SerialBridgeCommunicator(Stream &commStream, Stream &outputStream, Stream &errorStream):
+				SerialCommunicator(commStream, outputStream, errorStream)
+	{
+	}

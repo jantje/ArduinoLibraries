@@ -30,13 +30,13 @@ uint8_t lastFieldIndex = 0;
 /**
  * This method dumps the content of the FieldData object to the stream provided
  */
-void FieldData::dump() const
+void FieldData::dump(Stream &serial) const
 {
-	FieldInfo::dump();
-	SerialOutput.print(F("Value\t"));
-	SerialOutput.print(getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
-	SerialOutput.println();
-	SerialOutput.println();
+	FieldInfo::dump(serial);
+	serial.print(F("Value\t"));
+	serial.print(getValue(commonlyUsedBuffer, commonlyUsedBuffersize));
+	serial.println();
+	serial.println();
 }
 
 /**
@@ -231,13 +231,13 @@ FieldData* FieldData::findField(const char * fieldName)
 	return 0;
 }
 
-void FieldData::visitAllFields(FieldVisitor visitorfunc, uint8_t all)
+void FieldData::visitAllFields(FieldVisitor visitorfunc, Stream& serial, uint8_t all)
 {
 	for (int curField = 0; curField < lastFieldIndex; curField++)
 	{
 		if (all || ((AllFields[curField].myModFlag & MOD_SAVE) == MOD_SAVE))
 		{
-			(*visitorfunc)(AllFields[curField]);
+			(*visitorfunc)(serial,AllFields[curField]);
 		}
 	}
 }

@@ -49,7 +49,7 @@ class FieldInfo
 		uint8_t myModFlag;
 		const FieldInfo & operator=(const FieldInfo &fieldInfo);
 		bool operator==(const FieldInfo &fieldInfo) const;
-		void dump() const;
+		void dump(Stream &serial) const;
 
 		#ifdef I_USE_GPS
 			static DataTypes getType(GPSLocation){return  _GPSLocation;};
