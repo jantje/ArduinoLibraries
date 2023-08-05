@@ -34,8 +34,7 @@ volatile uint16_t SharedRCValue[NUM_RC_CHANNELS];
 
 
 
-#if NUM_DIGITAL_PINS == 70
-#define MEGA
+#ifdef ARDUINO_AVR_MEGA2560
 #warning "If the used board is not a mega there is a problem"
 #elif NUM_DIGITAL_PINS == 20
 #define UNO
@@ -56,7 +55,7 @@ volatile uint16_t SharedRCValue[NUM_RC_CHANNELS];
 #else
 #define ATTACHEINTERRUPT attachInterrupt
 #define GETINTERRUPT(x) InterruptMap[RC_Channel_Pin[x]]
-#ifdef MEGA
+#ifdef ARDUINO_AVR_MEGA2560
 #if NUM_RC_CHANNELS >6
 #error "The mega can only have 6 interrupts if you do not use the pinchangeint library"
 #endif
