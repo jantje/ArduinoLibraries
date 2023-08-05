@@ -1,5 +1,5 @@
 /*
- * IMotor.h
+ * MotorInterface.h
  *
  *  Created on: Jul 4, 2014
  *      Author: jan
