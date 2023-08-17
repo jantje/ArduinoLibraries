@@ -32,14 +32,14 @@ class BlinkLed
 		// constants won't change. Used here to
 		// set pin numbers:
 		uint8_t myLedPin ;      // the number of the LED pin
-		ledState myLedState;
+		ledState myLedState=blinking;
 
 		// the follow variables is a long because the time, measured in miliseconds,
 		// will quickly become a bigger number than can be stored in an int.
 		uint16_t myOnInterval ;           // interval at which to blink (milliseconds)
 		uint16_t myOffInterval ;           // interval at which to blink (milliseconds)
-		uint8_t myPrefPinState;
-		uint32_t myPrefLoopMillis;
+		uint8_t myPrefPinState=LOW;
+		uint32_t myPrefLoopMillis=0;
 #ifdef SOFTPWM
 		//the usage of softpwm allows to coorect the brightness of the leds
 	public:

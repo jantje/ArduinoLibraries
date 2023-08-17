@@ -1,0 +1,87 @@
+echo run this script with sudo or with adin rights
+
+
+#Set some vars
+dynamicFolder=/usr/lib/cgi-bin/jantje
+staticFolder=/var/www/html/jantje
+nasMountPoint=/mnt/nas
+
+
+#prepare to install stuff
+apt update
+
+#install web server (logs are in /var/log/apache2 )
+apt install apache2 -y
+
+#activate other cgi on apache
+a2enmod cgi
+
+#compile teensy loader
+apt install libusb-dev
+git clone https://github.com/PaulStoffregen/teensy_loader_cli.git
+cd teensy_loader_cli
+make
+cd ..
+
+#add minicom to monitor serial ports
+apt install minicom
+
+#install teensy udev rules
+wget http://www.pjrc.com/teensy/00-teensy.rules
+cp 00-teensy.rules /etc/udev/rules.d/00-teensy.rules
+
+
+
+
+#add /www/cgi-bin/jantje to the path
+sed -i 's/export PATH/PATH=$PATH:\/usr\/lib\/cgi-bin\/jantje\nexport PATH/g' /etc/profile
+
+
+
+mkdir -p ${dynamicFolder}
+mkdir -p ${staticFolder}
+mkdir -p ${nasMountPoint}
+
+chmod 777 ${dynamicFolder}
+chmod 777 ${staticFolder}
+chmod 777 ${nasMountPoint}
+
+
+#copy the latest version of the code to pi
+cp /mnt/sda1/dynamic/* ${dynamicFolder}
+cp /mnt/sda1/static/* ${staticFolder}
+
+#make the files accessable to apache
+chmod 777 ${dynamicFolder}/*
+chmod 777 ${staticFolder}
+
+# convert the #!/bin/ash to #!/bin/bash
+
+FILES=${dynamicFolder}/*.cgi
+
+for f in $FILES
+do
+sed -i 's_#\!/bin/ash_#!/bin/bash_g' ${f}
+done
+
+FILES=${dynamicFolder}/*.sh
+
+for f in $FILES
+do
+sed -i 's_#\!/bin/ash_#!/bin/bash_g' ${f}
+done
+
+
+#add the starting of my bridge to the start file of linux
+mv /etc/rc.local /etc/rc.local.org
+grep -v "exit 0" </etc/rc.local.org >/etc/rc.local
+echo >>/etc/rc.local
+echo '${dynamicFolder}/startReadingArduino.sh' >>/etc/rc.local
+echo 'exit 0' >>/etc/rc.local
+
+
+
+reboot
+
+
+

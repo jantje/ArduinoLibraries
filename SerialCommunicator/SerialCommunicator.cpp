@@ -91,23 +91,7 @@ void SerialCommunicator::dumpCommands()
 		mySerialStringReader.myStream.println(F("LOG HEADER LOSerialOutput.he names"));
 	}
 
-//#ifdef I_USE_RESET
-///*
-// * Don't fiddle with this code as it is very likely things won't work anymore
-// */
-//void SerialCommunicator::ForceHardReset()
-//{
-//	delay(myResetDelay);
-//	pinMode(myResetPin, OUTPUT); //this sets the pin to low one way or another
-//	//digitalWrite(myResetPin,LOW);
-//	digitalWrite(myResetPin,HIGH);
-//	SerialOutput.print(F("Did you connect pin "));
-//	SerialOutput.print(myResetPin);
-//	SerialOutput.println(F(" to reset?"));
-//	delay(10000);//needs some delay but if it fails you want to be able to try again
-//
-//}
-//#endif
+
 
 void SerialCommunicator::logValue()
 	{
@@ -165,10 +149,10 @@ void SerialCommunicator::loop()
 							{
 								//The below output is tight for me
 								// the reason is that you do not want to put load on the stream
-								SerialOutput.print(F("log Fail have:"));
-								SerialOutput.print(availableForWrite);
-								SerialOutput.print(F(" need:"));
-								SerialOutput.println(mySerialQueueSize);
+								mySerialError.print(F("log Fail have:"));
+								mySerialError.print(availableForWrite);
+								mySerialError.print(F(" need:"));
+								mySerialError.println(mySerialQueueSize);
 							}
 					}
 			}
@@ -233,11 +217,11 @@ void SerialCommunicator::setReceivedMessage(const char *newMessage)
 				dumpCommands();
 				if ('?' != newMessage[0])
 					{
-						SerialOutput.print((__FlashStringHelper*) ERROR);
+						mySerialError.print((__FlashStringHelper*) ERROR);
 						//Even though it is handy to see what has been send
 						//The yun bootloader sends press ard to stop bootloader
 						//echoing this means the bootloader receives ard
-						//SerialOutput.println(newMessage);
+						//mySerialOutput.println(newMessage);
 					}
 				return;
 			}
@@ -251,9 +235,9 @@ void SerialCommunicator::setReceivedMessage(const char *newMessage)
 //	myResetDelay = 300;
 //}
 //#else
-SerialCommunicator::SerialCommunicator(Stream &commStream, Stream &outputStream, Stream &errorStream)
+SerialCommunicator::SerialCommunicator(Stream &bridgeStream,  Stream &errorStream)
 				:
-				mySerialStringReader(commStream), SerialOutput(outputStream), SerialError(errorStream)
+				mySerialStringReader(bridgeStream), mySerialOutput(bridgeStream), mySerialError(errorStream)
 	{
 	}
 
@@ -283,8 +267,8 @@ void SerialCommunicator::setup()
 				oldSerialQueueSize = mySerialQueueSize;
 				mySerialQueueSize = mySerialStringReader.myStream.availableForWrite();
 			} while (mySerialQueueSize != oldSerialQueueSize);
-		SerialOutput.print("SerialQueueSize =");
-		SerialOutput.println(mySerialQueueSize);
+		mySerialOutput.print("SerialQueueSize =");
+		mySerialOutput.println(mySerialQueueSize);
 
 		mySerialStringReader.setup();
 		mylastLog = millis();

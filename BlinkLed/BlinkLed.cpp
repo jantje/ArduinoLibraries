@@ -12,9 +12,6 @@ BlinkLed::BlinkLed(uint8_t ledPin, uint16_t onInterval, uint16_t offInterval) {
     myLedPin = ledPin;      // the number of the LED pin
     myOnInterval = onInterval;
     myOffInterval = offInterval;
-    myLedState = blinking;
-    myPrefPinState = LOW;
-    myPrefLoopMillis = 0;
 #ifdef SOFTPWM
     myPwmValue=100;
 #endif
@@ -38,9 +35,8 @@ void BlinkLed::loop() {
 #else
 #define LOOPMILLIS curMillis
     uint32_t LOOPMILLIS = millis();
-
 #endif
-    uint8_t newPinState = LOW;
+    uint8_t newPinState = myPrefPinState;
     switch (myLedState) {
         case blinking: {
             //this is a expensive calculation
@@ -66,6 +62,7 @@ void BlinkLed::loop() {
 #ifdef SOFTPWM
         SoftPWMSet(myLedPin, newPinState*myPwmValue);
 #else
+        Serial.println("led changed state");
         digitalWrite(myLedPin, newPinState);
 #endif
         myPrefPinState = newPinState;

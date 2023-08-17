@@ -13,7 +13,7 @@ class SerialBridgeCommunicator: public SerialCommunicator
 
 	public:
 
-		SerialBridgeCommunicator(Stream &commStream, Stream &outputStream, Stream &errorStream);
+		SerialBridgeCommunicator(Stream &bridgeStream,  Stream &errorStream);
 		virtual void setReceivedMessage(const char *newMessage);
 		void saveData(); //Reads data in the variables and stores it on the linux part of the yun
 		void readData(); //Reads data on the linux part of the yun
@@ -21,14 +21,14 @@ class SerialBridgeCommunicator: public SerialCommunicator
 		void setup();
 		void runShellCommand(const char *command)
 			{
-				SerialOutput.print("EXEC:");
-				SerialOutput.println(command);
+				mySerialOutput.print("EXEC:");
+				mySerialOutput.println(command);
 			}
 		;
 		void runShellCommand(const __FlashStringHelper* command)
 			{
-				SerialOutput.print("EXEC:");
-				SerialOutput.println(command);
+				mySerialOutput.print("EXEC:");
+				mySerialOutput.println(command);
 			}
 		void runSynchronousShellCommand(const char *command, char *returnBuffer, uint8_t ReturnBuffersize);
 		virtual ~SerialBridgeCommunicator(){};

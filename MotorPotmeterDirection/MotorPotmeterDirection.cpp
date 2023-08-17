@@ -41,7 +41,6 @@ void MotorPotmeterDirection::setPotValue()
 #define STEP 10
 void MotorPotmeterDirection::loop()
 {
-	//DUMP_AND_WAIT(SerialOutput,"enter ScooterMotor::loop()");
 	myRequestedSpeed = myNewRequestedSpeed;
 
 	static unsigned long last_action_Time = millis();
@@ -92,7 +91,6 @@ void MotorPotmeterDirection::loop()
 	myPotmeter.loop();
 	myCurrentSensor.loop();
 	myCurrentUsage_cA=abs(myCurrentSensor.getAvgCurrent_cA());
-	//DUMP_AND_WAIT(SerialOutput,"exit ScooterMotor::loop()");
 
 }
 

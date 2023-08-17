@@ -23,22 +23,22 @@ void SerialBridgeCommunicator::setReceivedMessage(const char* newMessage)
 {
 	if (strcmp_P(newMessage, SAVE) == 0)
 	{
-		SerialOutput.println((const __FlashStringHelper *)SAVE);
+		mySerialOutput.println((const __FlashStringHelper *)SAVE);
 		saveData();
-		SerialOutput.println((const __FlashStringHelper *)DONE);
+		mySerialOutput.println((const __FlashStringHelper *)DONE);
 		return;
 	}
 	else if (strcmp_P(newMessage, LOAD) == 0)
 	{
-		SerialOutput.println((const __FlashStringHelper *)LOAD);
+		mySerialOutput.println((const __FlashStringHelper *)LOAD);
 		readData();
-		SerialOutput.println((const __FlashStringHelper *)DONE);
+		mySerialOutput.println((const __FlashStringHelper *)DONE);
 		return;
 	}	else if ('?' == newMessage[0])
 	{
 		SerialCommunicator::setReceivedMessage( newMessage);
-		SerialOutput.println(F("SAVE                    save the settings to eeprom"));
-		SerialOutput.println(F("LOAD 			              load the settings from eeprom"));
+		mySerialOutput.println(F("SAVE                    save the settings to eeprom"));
+		mySerialOutput.println(F("LOAD 			              load the settings from eeprom"));
 		return;
 	}
 
@@ -207,7 +207,7 @@ void SerialBridgeCommunicator::readData()
 	FieldData::visitAllFields(readAfield,mySerialStringReader.myStream, false);
 	}
 
-SerialBridgeCommunicator::SerialBridgeCommunicator(Stream &commStream, Stream &outputStream, Stream &errorStream):
-				SerialCommunicator(commStream, outputStream, errorStream)
+SerialBridgeCommunicator::SerialBridgeCommunicator(Stream &bridgeStream,  Stream &errorStream):
+				SerialCommunicator(bridgeStream,  errorStream)
 	{
 	}

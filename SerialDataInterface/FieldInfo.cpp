@@ -78,7 +78,7 @@ void FieldInfo::dump(Stream &serial) const
 #endif
 #ifdef I_USE_STRING
 			case _String:
-			SerialOutput.println(F("String"));
+				serial.println(F("String"));
 			break;
 #endif
 #ifdef I_USE_DATETIME
