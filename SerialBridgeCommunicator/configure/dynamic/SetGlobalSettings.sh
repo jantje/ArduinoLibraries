@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 subfolder=jantje
 export PATH=${PATH}:/www/cgi-bin/${subfolder}
 SerialSpeed=115200

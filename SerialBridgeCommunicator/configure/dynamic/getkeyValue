@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 #give the filename and key as params
 value=`grep ^${2}: <${1} |sed s#^${2}:##`
 echo file ${1} field ${2} value ${value} >> /tmp/getkeyValue.log

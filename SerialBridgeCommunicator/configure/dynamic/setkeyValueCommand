@@ -1,5 +1,5 @@
-#!/bin/ash
-. /www/cgi-bin/jantje/SetGlobalSettings.sh
+#!/bin/bash
+. SetGlobalSettings.sh
 
 mkdir -p ${SlowBigStorage}
 cd ${SlowBigStorage}

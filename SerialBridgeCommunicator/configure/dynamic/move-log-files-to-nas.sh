@@ -1,10 +1,8 @@
-#!/bin/ash  
+#!/bin/bash  
 #This scripts starts the whole arduino openwrt communication.
 # start with DUMP the first time so that a web page is created.
 
-ScriptFolder=$(dirname $0)
-cd ${ScriptFolder}
-. ./SetGlobalSettings.sh
+. SetGlobalSettings.sh
 
 mkdir -p ${CommonHugeRemoteMountPoint}
 umount ${CommonHugeRemoteMountPoint}

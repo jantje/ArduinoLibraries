@@ -1,6 +1,6 @@
-#!/bin/ash 
+#!/bin/bash 
 
-. ./SetGlobalSettings.sh  
+. SetGlobalSettings.sh  
 ${SttyCommand} >/dev/null
 echo >> ${PortName}
 echo "LOG HEADER">> ${PortName}

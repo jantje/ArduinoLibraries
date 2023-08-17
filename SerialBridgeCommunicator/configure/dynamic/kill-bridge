@@ -1,4 +1,4 @@
-#!/bin/ash 
+#!/bin/bash 
 . SetGlobalSettings.sh
 if [ ${UploadPortName} == ${PortName} ] ; then
   stopReadingArduino.sh

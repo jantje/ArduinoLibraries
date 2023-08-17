@@ -54,7 +54,6 @@ wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBrid
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/SetGlobalSettings.sh
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/cgiutil
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/do.cgi
-wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/doBackup
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/dump.html
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/getkeyValue
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/getkeyValueCommand
@@ -70,7 +69,7 @@ wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBrid
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/value
 
 
-cd /mnt/sda1/static/* ${staticFolder}
+cd ${staticFolder}
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/0.png
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/1.png
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/2.png
@@ -83,23 +82,7 @@ wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBrid
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/tabs.css
 wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/tabs.gif
 
-
-
-# convert the #!/bin/ash to #!/bin/bash
-
-FILES=${dynamicFolder}/*.cgi
-
-for f in $FILES
-do
-sed -i 's_#\!/bin/ash_#!/bin/bash_g' ${f}
-done
-
-FILES=${dynamicFolder}/*.sh
-
-for f in $FILES
-do
-sed -i 's_#\!/bin/ash_#!/bin/bash_g' ${f}
-done
+chmod 777 ${dynamicFolder}/*
 
 
 #add the starting of my bridge to the start file of linux

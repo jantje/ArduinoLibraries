@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 #give the filename and key and value as params
 mkdir -p /tmp/jantje/
 grep -v ^${2}: <${1} >/tmp/jantje/keyvalue.tmp
