@@ -1,4 +1,4 @@
-echo run this script with sudo or with adin rights
+echo "run this script with sudo or with adin rights"
 
 
 #Set some vars
@@ -48,12 +48,42 @@ chmod 777 ${nasMountPoint}
 
 
 #copy the latest version of the code to pi
-cp /mnt/sda1/dynamic/* ${dynamicFolder}
-cp /mnt/sda1/static/* ${staticFolder}
+cd ${dynamicFolder}
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/MakeWebPage.lua
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/ParseArduinoInput.sh
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/SetGlobalSettings.sh
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/cgiutil
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/do.cgi
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/doBackup
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/dump.html
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/getkeyValue
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/getkeyValueCommand
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/index.html
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/move-log-files-to-nas.sh
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/set.cgi
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/setkeyValue
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/setkeyValueCommand
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/start.sh
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/startReadingArduino.sh
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/stopReadingArduino.sh
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/upload.lua
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/dynamic/value
 
-#make the files accessable to apache
-chmod 777 ${dynamicFolder}/*
-chmod 777 ${staticFolder}
+
+cd /mnt/sda1/static/* ${staticFolder}
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/0.png
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/1.png
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/2.png
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/3.png
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/4.png
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/activatables.js
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/default.html
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/input.begin.html
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/input.end.html
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/tabs.css
+wget https://raw.githubusercontent.com/jantje/ArduinoLibraries/master/SerialBridgeCommunicator/configure/static/tabs.gif
+
+
 
 # convert the #!/bin/ash to #!/bin/bash
 
@@ -81,7 +111,7 @@ echo 'exit 0' >>/etc/rc.local
 
 
 
-reboot
+#reboot
 
 
 
