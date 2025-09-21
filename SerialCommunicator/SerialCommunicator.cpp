@@ -140,7 +140,7 @@ void SerialCommunicator::loop()
 						 * virtual int availableForWrite(void){return 0;};
 						 */
 						int availableForWrite = mySerialStringReader.myStream.availableForWrite();
-						if (availableForWrite == mySerialQueueSize) //only when the buffer is completely empty transmit data
+						if (availableForWrite >= mySerialQueueSize) //only when the buffer is completely empty transmit data
 							{
 								uint32_t logstart = millis();
 								logValue();
