@@ -3,6 +3,6 @@
 . SetGlobalSettings.sh
 mkdir -p ${backupLocation}/dynamic
 mkdir -p ${backupLocation}/static
-cp ${WebLocation}/* ${backupLocation}/dynamic
-cp ${StaticWebLocation}/* ${backupLocation}/static
+cp ${WebLocationDynamic}/* ${backupLocation}/dynamic
+cp ${WebLocationStatic}/* ${backupLocation}/static
 

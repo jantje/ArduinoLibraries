@@ -15,7 +15,7 @@ move-log-files-to-nas.sh
 ${SttyCommand}
 
 #start the parsing
-cd ${WebLocation}
+cd ${WebLocationDynamic}
 mkdir -p ${ErrorFolder}
 mkdir -p ${FastSmallStorage}
 ./ParseArduinoInput.sh < ${PortName} 2>&1 >>${ErrorLog} &

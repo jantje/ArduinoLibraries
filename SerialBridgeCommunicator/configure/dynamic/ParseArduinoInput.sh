@@ -74,7 +74,7 @@ do
         elif [ "$FIRST" = "EXEC" ]; then
 #wait for this command to return. If the command is asynchronous the command must start the async action itself
           COMMAND=`echo $line | cut -d':' -f2`
-          ${WebLocation}/${COMMAND} >> ${PortName} & 
+          ${WebLocationDynamic}/${COMMAND} >> ${PortName} & 
         fi
     fi
   fi

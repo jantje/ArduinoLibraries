@@ -7,10 +7,10 @@ PortName=/dev/${Port}
 UploadPortName=/dev/${Port}
 HOST_NAME=`hostname`
 HugeRemoteStorageServer=nas.local
-WebLocation=/www/cgi-bin/${subfolder}
-StaticWebLocation=/www/${subfolder}
+WebLocationDynamic=/www/cgi-bin/${subfolder}
+WebLocationStatic=/www/${subfolder}
 LogFileSuffix=.csv
-staticfolder=/${subfolder}/
+staticfolderURL=/${subfolder}/
 
 #the root of the storages
 CommonFastStorage=/tmp/${subfolder}
@@ -34,9 +34,9 @@ LogHeaderFile=${SlowBigStorage}/header.txt
 
 
 
-BeginHtml=${StaticWebLocation}/input.begin.html
-EndHtml=${StaticWebLocation}/input.end.html
-defaulthtmlFile=${StaticWebLocation}/default.html
+BeginHtml=${WebLocationStatic}/input.begin.html
+EndHtml=${WebLocationStatic}/input.end.html
+defaulthtmlFile=${WebLocationStatic}/default.html
             
 
 LogFilePrefix=${SlowBigStorage}/log/Arduino
@@ -52,7 +52,7 @@ pid=${FastSmallStorage}/pid
 
 
 #script locations
-MakeWepPage=${WebLocation}/MakeWebPage.sh
+MakeWepPage=${WebLocationDynamic}/MakeWebPage.sh
 
 SttyCommand="stty -F ${PortName}  ${SerialSpeed}  raw -clocal -echo icrnl"
 
