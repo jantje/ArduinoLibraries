@@ -231,13 +231,24 @@ FieldData* FieldData::findField(const char * fieldName)
 	return 0;
 }
 
-void FieldData::visitAllFields(FieldVisitor visitorfunc, Stream& serial, uint8_t all)
+void FieldData::visitAllFields(FieldStreamVisitor visitorfunc, Stream& serial, uint8_t all)
 {
 	for (int curField = 0; curField < lastFieldIndex; curField++)
 	{
 		if (all || ((AllFields[curField].myModFlag & MOD_SAVE) == MOD_SAVE))
 		{
 			(*visitorfunc)(serial,AllFields[curField]);
+		}
+	}
+}
+
+void FieldData::visitAllFields(FieldVisitor visitorfunc,  uint8_t all)
+{
+	for (int curField = 0; curField < lastFieldIndex; curField++)
+	{
+		if (all || ((AllFields[curField].myModFlag & MOD_SAVE) == MOD_SAVE))
+		{
+			(*visitorfunc)(AllFields[curField]);
 		}
 	}
 }
