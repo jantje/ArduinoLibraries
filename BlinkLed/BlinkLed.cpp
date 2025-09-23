@@ -62,7 +62,7 @@ void BlinkLed::loop() {
 #ifdef SOFTPWM
         SoftPWMSet(myLedPin, newPinState*myPwmValue);
 #else
-        Serial.println("led changed state");
+        //Serial.println("led changed state");
         digitalWrite(myLedPin, newPinState);
 #endif
         myPrefPinState = newPinState;
