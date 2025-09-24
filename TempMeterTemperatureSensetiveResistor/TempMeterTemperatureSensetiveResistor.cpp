@@ -10,7 +10,7 @@
 TempMeterTemperatureSensetiveResistor::TempMeterTemperatureSensetiveResistor(
 		uint8_t Pin) {
 	myPin = Pin;
-	myCentiCelsius = 0;
+	myMilliCelsius = 0;
 	myMultiplyerValue = 1000;
 	myActualReadValue = 0;
 	myOffset = 0;
@@ -21,7 +21,7 @@ TempMeterTemperatureSensetiveResistor::TempMeterTemperatureSensetiveResistor(
 TempMeterTemperatureSensetiveResistor::TempMeterTemperatureSensetiveResistor(uint8_t Pin, int16_t multiplyerValue, int16_t offset)
 	{
 		myPin = Pin;
-		myCentiCelsius = 0;
+		myMilliCelsius = 0;
 		myMultiplyerValue = multiplyerValue;
 		myActualReadValue = 0;
 		myOffset = offset;
@@ -87,7 +87,7 @@ void TempMeterTemperatureSensetiveResistor::loop() {
 
 #ifdef USE_LN
 			//logarithmic scale works better for heat sensitive resistors
-			myCentiCelsius=convertLogarithmicADReadToCentiCelsius(inputValue,myMultiplyerValue,myOffset);
+			myMilliCelsius=convertLogarithmicADReadToCentiCelsius(inputValue,myMultiplyerValue,myOffset)*10;
 
 #else
             myCentiCelsius=convertLinearADReadToCentiCelsius(inputValue,myMultiplyerValue,myOffset);
@@ -95,7 +95,7 @@ void TempMeterTemperatureSensetiveResistor::loop() {
 
 			myIsError = (myActualReadValue < 5 || myActualReadValue > 1020);
 			if (myIgnore) {
-				myCentiCelsius = 2000;
+				myMilliCelsius = 20000;
 				myIsError = false;
 			}
 		}
