@@ -13,31 +13,54 @@
 #include "Arduino.h"
 #include "TempMeterInterface.h"
 #include "DallasTemperature.h"
+#include "OneWire.h"
 #ifdef I_USE_SERIAL_REGISTER
 #include "SerialDataInterface.h"
 #endif
 extern uint32_t loopMillis;
 
-class TempMeterDS18B20:public TempMeterInterface
-{
+class TempMeterDS18B20: public TempMeterInterface {
 
-	private:
-		uint16_t myReadInterval=1000;
-		boolean myIgnore=false;
+private:
 
-    uint32_t myLastAction=0;
-	public:
-    //I have made the DallasTemperature public so the programmer has full access to its functionality
-    DallasTemperature mySensors;
+	uint16_t myReadResponseTime = calculateReadResponseTime(10);
+	int8_t myIndex=-1; //using negative value to know index is not used
+	int8_t myResolution=10; //The bit resolution used by the sensor (9->12)
+	boolean myIgnore = false;
+	boolean myValueRequested = true;
+	DeviceAddress mySensorAddress;
 
-	public:
+	uint32_t myLastAction = 0;
+public:
+	//I have made the DallasTemperature public so the programmer can have access to its functionality
+	DallasTemperature mySensors;
 
-		TempMeterDS18B20( uint8_t Pin);
+public:
 
-		void setup();
-		void loop();
+	TempMeterDS18B20(OneWire &wire, DeviceAddress sensorAddress);
+	TempMeterDS18B20(OneWire &wire, int sensorIndex);
+	virtual ~TempMeterDS18B20() = default;
+	void setResolution(int8_t newResolution){
+		if (newResolution>8 && newResolution<13 ){
+			myResolution=newResolution;
+			myReadResponseTime=calculateReadResponseTime(myResolution);
+		}
+	}
+
+	void setup();
+	void loop();
+	//For the calculation below I use resolution 10 and the formula provided
+		//by robtillaart (thanks robtillaart)
+		//https://forum.arduino.cc/t/dallas-temperature-libary-non-blocking-question/153430/2
+	static uint16_t calculateReadResponseTime(uint8_t bitResolution){
+		uint16_t correctResolution=10;
+		if (bitResolution>8 && bitResolution<13 ){
+			correctResolution=bitResolution;
+		}
+		return 750 / (1 << (12 - bitResolution));
+	}
 #ifdef I_USE_SERIAL_REGISTER
-		void serialRegister(const __FlashStringHelper* Name);
+	void serialRegister(const __FlashStringHelper* Name);
 #endif
 };
 
