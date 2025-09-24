@@ -34,6 +34,7 @@ class TempMeterTemperatureSensetiveResistor:public TempMeterInterface
 		void serialRegister(const __FlashStringHelper* Name);
 		void setup();
 		void loop();
+		virtual ~TempMeterTemperatureSensetiveResistor()=default;
 };
 
 #pragma once
