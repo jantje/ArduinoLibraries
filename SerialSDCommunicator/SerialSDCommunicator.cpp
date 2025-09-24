@@ -7,6 +7,8 @@
 
 #include "SerialSDCommunicator.h"
 
+//enable the line below to get extensive debug info on Serial
+//#define DEBUG
 
 #define BUFFERSIZE 100
 
@@ -22,27 +24,49 @@ static void readAfield(FieldData& fieldData)
 {
 	//put the expected start of the result in expectedResultStart
 	char expectedResultStart[BUFFERSIZE];
-	strlcpy_P(expectedResultStart, (const char *) F("SET "), BUFFERSIZE);
-	strlcat_P(expectedResultStart, (const char *) fieldData.myClassName, BUFFERSIZE);
+	strlcpy_P(expectedResultStart, (const char *) fieldData.myClassName, BUFFERSIZE);
 	strlcat(expectedResultStart, ".", BUFFERSIZE);
 	strlcat_P(expectedResultStart, (const char *) fieldData.myFieldName, BUFFERSIZE);
 	strlcat(expectedResultStart, "=", BUFFERSIZE);
 
 
 	int resultIndex=valuesContent.indexOf(expectedResultStart);
-	if(resultIndex==0){
+	if(resultIndex==-1){
+#ifdef DEBUG
 		Serial.print("No result found for: ");
 		Serial.println(expectedResultStart);
+		Serial.print("in: ");
+		Serial.println(valuesContent);
+		Serial.println("End of no result found.");
+#endif
 		return;
 	}
 	int resultEndIndex=valuesContent.indexOf("\n",resultIndex);
-	if(resultEndIndex==0){
+	if(resultEndIndex==-1){
+#ifdef DEBUG
 		Serial.print("Result was found but no line end found: ");
 		Serial.println(expectedResultStart);
+		Serial.println(valuesContent);
+		Serial.println("End of result found nut no line end.");
+#endif
 		return;
 	}
 	String stringValue=valuesContent.substring(resultIndex, resultEndIndex);
+#ifdef DEBUG
+	Serial.print("searching: ");
+	Serial.println(expectedResultStart);
+	Serial.print("found at: ");
+	Serial.print(resultIndex);
+	Serial.print(" to: ");
+	Serial.print(resultEndIndex);
+	Serial.print(" is: ");
+	Serial.println(stringValue);
+#endif
 	stringValue.toCharArray(expectedResultStart, BUFFERSIZE, strlen(expectedResultStart));
+#ifdef DEBUG
+	Serial.print("Setting value: ");
+	Serial.println(expectedResultStart);
+#endif
 	fieldData.setValue(expectedResultStart);
 
 	}
@@ -64,9 +88,10 @@ static void saveAfield(FieldData& fieldData)
 	valuesContent.concat('\n');
 	//dataFile.println(valueLine);
 
-	//debug log
+#ifdef DEBUG
 	Serial.print("saved field ");
 	Serial.println(valueLine);
+#endif
 }
 
 
@@ -105,26 +130,36 @@ void SerialSDCommunicator::saveData()
 
 
 	valuesContent="";
+#ifdef DEBUG
 	Serial.println("start reading the fields");
+#endif
 	FieldData::visitAllFields(saveAfield,false);
+#ifdef DEBUG
 	Serial.println("Done reading the fields");
+#endif
 
 	// make a backup copyu of the file
 	if (SD.exists(SAVE_FILE)) {
 		SD.remove(SAVE_FILE);
-		Serial.println("Removed the original file");
+		mySerialError.println("Removed the original file");
 	}
+#ifdef DEBUG
 	Serial.println("Opening new values.txt for write");
+#endif
 	File valuesFile = SD.open(SAVE_FILE,FILE_WRITE);
 	if (!valuesFile) {
 		mySerialError.print("error opening file:");
 		mySerialError.println(SAVE_FILE);
 		return;
 	}
+#ifdef DEBUG
 	Serial.println(valuesContent);
+#endif
 	valuesFile.println(valuesContent);
 	valuesFile.close();
+#ifdef DEBUG
 	Serial.println("File values.txt is closed");
+#endif
 }
 
 
@@ -144,15 +179,18 @@ void SerialSDCommunicator::readData()
 	  }
 	Serial.println("Done reading fields");
 	dataFile.close();
+#ifdef DEBUG
 	Serial.println(valuesContent);
 	Serial.println();
 	Serial.print("Done dumping the file: ");
 	Serial.println(SAVE_FILE);
 
 	Serial.println("reading the fields");
+#endif
 	FieldData::visitAllFields(readAfield,false);
-
+#ifdef DEBUG
 	Serial.println("File values.txt is closed");
+#endif
 }
 
 SerialSDCommunicator::SerialSDCommunicator(Stream &bridgeStream, Stream &errorStream):
