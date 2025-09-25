@@ -57,7 +57,7 @@ public:
 		if (bitResolution>8 && bitResolution<13 ){
 			correctResolution=bitResolution;
 		}
-		return 750 / (1 << (12 - bitResolution));
+		return 750 / (1 << (12 - correctResolution));
 	}
 #ifdef I_USE_SERIAL_REGISTER
 	void serialRegister(const __FlashStringHelper* Name);
