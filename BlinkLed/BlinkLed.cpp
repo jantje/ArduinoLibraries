@@ -30,19 +30,19 @@ void BlinkLed::setup() {
 }
 
 void BlinkLed::loop() {
-#ifdef LOOPMILLIS
-    extern uint32_t LOOPMILLIS;
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
 #else
-#define LOOPMILLIS curMillis
-    uint32_t LOOPMILLIS = millis();
+   extern uint32_t loopMillis;
 #endif
+
     uint8_t newPinState = myPrefPinState;
     switch (myLedState) {
         case blinking: {
             //this is a expensive calculation
-            if (LOOPMILLIS - myPrefLoopMillis > 10) {
-                myPrefLoopMillis = LOOPMILLIS;
-                if ((LOOPMILLIS % (myOnInterval + myOffInterval)) >= myOffInterval) {
+            if (loopMillis - myPrefLoopMillis > 10) {
+                myPrefLoopMillis = loopMillis;
+                if ((loopMillis % (myOnInterval + myOffInterval)) >= myOffInterval) {
                     newPinState = HIGH;
                 } else {
                     newPinState = LOW;

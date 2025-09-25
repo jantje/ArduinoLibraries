@@ -25,6 +25,9 @@ CurrentSensorAnalog::CurrentSensorAnalog(uint8_t analogPin, int16_t MultiplyerVa
 
 void CurrentSensorAnalog::loop(void)
 	{
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
+#endif
 		uint32_t myLastRead = millis();
 		if (myAnalogPin != 255)
 			{

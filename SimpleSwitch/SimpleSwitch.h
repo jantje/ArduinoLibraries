@@ -8,7 +8,6 @@
 #include "Arduino.h"
 #include "FastRunningMedian.h"
 #define NUM_HIT_READS 4
-extern uint32_t loopMillis;
 
 class SimpleSwitch
 	{

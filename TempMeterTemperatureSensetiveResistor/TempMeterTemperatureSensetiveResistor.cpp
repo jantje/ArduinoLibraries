@@ -78,6 +78,9 @@ int16_t convertLogarithmicADReadToCentiCelsius(int32_t inputValue,int32_t multip
 }
 #define USE_LN
 void TempMeterTemperatureSensetiveResistor::loop() {
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
+#endif
 	if (myPin < NUM_DIGITAL_PINS) {
 		if (loopMillis - myLastRead > 1000) {
 			myLastRead = loopMillis;

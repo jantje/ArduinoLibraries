@@ -7,7 +7,11 @@
 #pragma once
 #include "SerialDataInterface.h"
 #include "DataTypes.h"
-extern uint32_t loopMillis;
+
+#ifdef USE_MAIN_LOOP_MILLIS
+   extern uint32_t loopMillis;
+#endif
+
 
 class MotorInterface
 {
@@ -82,6 +86,7 @@ class MotorInterface
 			return myCurrentUsage_cA;
 		}
 
+		virtual ~MotorInterface()=default;
 #ifdef I_USE_SERIAL_REGISTER
 		virtual void serialRegister(const __FlashStringHelper* Name)
 		{

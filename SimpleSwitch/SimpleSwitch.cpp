@@ -22,6 +22,10 @@ void SimpleSwitch::setup()
 
 void SimpleSwitch::loop()
 	{
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
+#endif
+
 		if (loopMillis - last_Switchread > 15)
 			{
 				last_Switchread = loopMillis;

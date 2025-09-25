@@ -17,7 +17,9 @@ MotorModBusSiemensV20::MotorModBusSiemensV20(uint8_t slaveAddress, Stream &seria
 
 void MotorModBusSiemensV20::loop()
 	{
-		uint32_t loopMillis = millis();
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
+#endif
 		if (!myIsWaitingForResponse)
 			{
 				//check to see for rubbisch on the channel

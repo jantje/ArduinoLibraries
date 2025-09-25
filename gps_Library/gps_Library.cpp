@@ -72,6 +72,9 @@ uint8_t parseHex(char c)
 
 void GPSModule::loop()
 {
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
+#endif
 	char ReceivedChar;
 	uint8_t sum;
 	int InBuffer;

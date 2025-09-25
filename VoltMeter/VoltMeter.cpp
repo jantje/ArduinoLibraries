@@ -57,8 +57,10 @@ long readVcc() {
 #endif //PRECISE_VOLTAGE
 
 void VoltMeter::loop() {
+#ifndef USE_MAIN_LOOP_MILLIS
+    uint32_t loopMillis = millis();
+#endif
     //only reed every 100 ms
-
     if (loopMillis - my_last_read > 100) {
         my_last_read = loopMillis;
 #ifdef PRECISE_VOLTAGE

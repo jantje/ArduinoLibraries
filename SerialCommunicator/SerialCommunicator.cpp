@@ -8,7 +8,7 @@
 #include "SerialStringReader.h"
 #include "watchdog.h"
 
-#ifdef MAX_MILLIS_IN_LOOP_TO_START
+#ifdef USE_MAIN_LOOP_MILLIS
 extern uint32_t loopMillis;
 #endif
 
