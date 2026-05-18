@@ -10,7 +10,6 @@
 #include "Arduino.h"
 #include <SerialCommunicator.h>
 #include "SD.h"
-
 class SerialSDCommunicator: public SerialCommunicator
 {
 	public:

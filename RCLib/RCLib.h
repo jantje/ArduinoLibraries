@@ -41,6 +41,9 @@ volatile uint16_t SharedRCValue[NUM_RC_CHANNELS];
 #warning "If the used board is not a UNO there is a problem"
 #elif NUM_ANALOG_INPUTS  ==8
 #error "this chip is not supported"
+#elif NUM_DIGITAL_PINS ==55 //this is Teensy 4.1 all pins are ok
+#warning "The code assumes you use a teensy 4.1 where all pins support digital interrupt"
+#define GETINTERRUPT(x) RC_Channel_Pin[ x]
 #else
 #define LEONARDO
 #warning "If the used board is not a LEONARDO there is a problem"
@@ -54,12 +57,13 @@ volatile uint16_t SharedRCValue[NUM_RC_CHANNELS];
 #define GETINTERRUPT(x) RC_Channel_Pin[x]
 #else
 #define ATTACHEINTERRUPT attachInterrupt
-#define GETINTERRUPT(x) InterruptMap[RC_Channel_Pin[x]]
+
 #ifdef ARDUINO_AVR_MEGA2560
 #if NUM_RC_CHANNELS >6
 #error "The mega can only have 6 interrupts if you do not use the pinchangeint library"
 #endif
 #define LastAvailablePin 21
+#define GETINTERRUPT(x) InterruptMap[RC_Channel_Pin[x]]
 const uint8_t InterruptMap[22]  = {255,255,0,1,255,255,255,255,255,255,255,255,255,255,255,255,255,255,5,4,3,2} ;
 #endif
 
@@ -68,6 +72,7 @@ const uint8_t InterruptMap[22]  = {255,255,0,1,255,255,255,255,255,255,255,255,2
 #error "The UNO can only have 2 interrupts if you do not use the pinchangeint library"
 #endif
 #define LastAvailablePin 4
+#define GETINTERRUPT(x) InterruptMap[RC_Channel_Pin[x]]
 prog_uint8_t InterruptMap[4]={255,255,0,1};
 #endif
 
@@ -76,6 +81,7 @@ prog_uint8_t InterruptMap[4]={255,255,0,1};
 #error "The leonardo can only have 4 interrupts you can not use the pinchangeint library"
 #endif
 #define LastAvailablePin 4
+#define GETINTERRUPT(x) InterruptMap[RC_Channel_Pin[x]]
 prog_uint8_t InterruptMap[4]={2,3,1,0};
 #endif
 
@@ -125,6 +131,7 @@ void RC_Channel7_interrupt () InteruptFunction(7)
 void SetRCInterrupts()
 {
 #ifndef PinChangeInt_h
+#ifndef TEENSYDUINO
 	boolean error=false;
 	 for (uint8_t curChannel = 0; curChannel < NUM_RC_CHANNELS; ++curChannel) {
 		 if ( (RC_Channel_Pin[curChannel] > LastAvailablePin ) || (InterruptMap[RC_Channel_Pin[curChannel]]==255))
@@ -138,6 +145,7 @@ void SetRCInterrupts()
 		 }
 	 }
 		 if (error) return;
+#endif
 #endif
 
 	 ATTACHEINTERRUPT(GETINTERRUPT(0), RC_Channel0_interrupt,CHANGE);

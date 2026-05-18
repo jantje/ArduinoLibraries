@@ -13,14 +13,14 @@ LogFileSuffix=.csv
 staticfolderURL=/${subfolder}/
 
 #the root of the storages
-CommonFastStorage=/tmp/${subfolder}
+RamDiskStorage=/tmp/${subfolder}
 CommonBigStorage=/mnt/sda1/${HOST_NAME}/${subfolder}
 CommonHugeRemoteMountPoint=/mnt/nas/
 
 
 
 #the root of the storages per port (and system)
-FastSmallStorage=${CommonFastStorage}/${Port}
+FastSmallStorage=${RamDiskStorage}/${Port}
 SlowBigStorage=${CommonBigStorage}/${Port}
 HugeRemoteStorage=/mnt/nas/${HOST_NAME}/${Port}
 
@@ -45,10 +45,9 @@ ErrorLog=${ErrorFolder}/error.log
 
 
 
-DumpFile=${FastSmallStorage}/dump.txt
-OutputValue=${FastSmallStorage}/value.txt
-logFile=${FastSmallStorage}/Arduino.log
-pid=${FastSmallStorage}/pid
+export DumpFile=${FastSmallStorage}/dump.txt
+export OutputValue=${FastSmallStorage}/value.txt
+export logFile=${FastSmallStorage}/Arduino.log
 
 
 #script locations
