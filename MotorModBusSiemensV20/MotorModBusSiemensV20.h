@@ -33,11 +33,10 @@ class MotorModBusSiemensV20: public MotorInterface
 	{
 	private:
 		uint8_t mySlaveAddress=0;
-		uint8_t myLastUsedAddress=0;
 		uint32_t myLastMessageSendTime=0;
 		uint32_t myLastMessageRecievedTime=0;
-		uint32_t mySendInterval=3000;
-		uint32_t myResponseDelayTime=2000;
+		uint32_t mySendInterval=2000;
+		uint32_t myResponseDelayTime=1000;
 		uint16_t myInverterState=3;
 		Stream &mySerial;
 
@@ -51,6 +50,7 @@ class MotorModBusSiemensV20: public MotorInterface
 
 	public :
 		MotorModBusSiemensV20(uint8_t slaveAddress,Stream &serial);
+		virtual ~MotorModBusSiemensV20(){};
 		void loop();
 		void setup();
 		void motorOn();
@@ -62,12 +62,9 @@ class MotorModBusSiemensV20: public MotorInterface
 		 * 0 is all ok
 		 * 1 waiting for response (half duplex does not allow sending while waiting for response)
 		 */
-		int sendTelegram(uint8_t address,uint8_t length,uint8_t message[]);
-		int sendMirrorTelegram(uint8_t address);
-		bool hasTelegramResponse();
-		void getTelegramResponse();
-		int requestInverterState(uint8_t address);
-		int readHoldingRegisters(uint8_t address,uint32_t adress,uint32_t numregisters);
+		int sendTelegram(uint8_t length,uint8_t message[]);
+		int requestInverterState();
+		int readHoldingRegisters(uint32_t adress,uint32_t numregisters);
 #ifdef I_USE_SERIAL_REGISTER
 		void serialRegister(const __FlashStringHelper* Name,const __FlashStringHelper* MotorName);
 #endif
