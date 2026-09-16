@@ -13,6 +13,7 @@ void VoltMeter::serialRegister(const __FlashStringHelper* Name)
     FieldData::set(Name,F("CentiVolt"),0,&myCentiVolt);
     FieldData::setNext((__FlashStringHelper *)MULTIPLIER_DIV_1000,MOD_WRITE|MOD_SAVE,&myMultiplyerValue);
 
+#define DETAILED_SERIAL_LOGGING
 #ifdef DETAILED_SERIAL_LOGGING
     FieldData::setNext(F("Value"),0,&myActualReadValue);
     FieldData::setNext(F("AvgValue"),0,&myAveragedReadValue);
@@ -61,7 +62,7 @@ void VoltMeter::loop() {
     uint32_t loopMillis = millis();
 #endif
     //only reed every 100 ms
-    if (loopMillis - my_last_read > 100) {
+    if (loopMillis - my_last_read > 10) {
         my_last_read = loopMillis;
 #ifdef PRECISE_VOLTAGE
         long vcc=readVcc();
@@ -71,10 +72,24 @@ void VoltMeter::loop() {
 #else
         myActualReadValue = analogRead(myPin);
         //As we do not read precisely we average the result
-        myAveragedReadValue = (myAveragedReadValue * 8 + (2 * myActualReadValue)) / 10;
+        uint32_t uint32ReadValue = (uint32_t) myActualReadValue;
+        uint32_t uint32AverageValue = (uint32_t) myAveragedReadValue;
+        uint32_t uint32Calc = (uint32AverageValue * (uint32_t)95 ) + ((uint32_t)5 * uint32ReadValue) ;
+        myAveragedReadValue = (uint16_t)(uint32Calc /(uint32_t) 100);
+        //myAveragedReadValue = (((uint32_t) myAveragedReadValue) * (uint32_t)99 + ((uint32_t)1 * myActualReadValue)) / 10;
 #endif
 
         myCentiVolt = (uint16_t)(((uint32_t) myAveragedReadValue * (uint32_t) myMultiplyerValue) / 1000UL);
+
+//#define DEBUG
+#ifdef DEBUG
+        static uint16_t prefLog=0;
+        if(prefLog!=myCentiVolt){
+        Serial.print ("voltage = ");
+        Serial.println (myCentiVolt);
+        prefLog=myCentiVolt;
+        }
+#endif
     }
 }
 

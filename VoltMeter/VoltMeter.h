@@ -46,8 +46,14 @@ class VoltMeter
 
 		void setup()
 		{
+#ifdef TEENSYDUINO
+			//teensy the analogs are available without pinMode
+			//Teensy 4.1 seems t have issues when analogRead is read to early
+			myAveragedReadValue=myActualReadValue=2400;
+#else
 			pinMode(myPin,INPUT); // This may not be needed
 			myAveragedReadValue=myActualReadValue= analogRead(myPin);
+#endif
 		}
 
 		void loop();
