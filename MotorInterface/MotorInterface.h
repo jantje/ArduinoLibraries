@@ -5,8 +5,11 @@
  *      Author: jan
  */
 #pragma once
+#ifdef I_USE_SERIAL_REGISTER
 #include "SerialDataInterface.h"
+#endif
 #include "DataTypes.h"
+
 
 #ifdef USE_MAIN_LOOP_MILLIS
    extern uint32_t loopMillis;
@@ -20,7 +23,6 @@ class MotorInterface
 		SPEED_TYPE myNewRequestedSpeed;
 		SPEED_TYPE myActualSpeed;
 		uint16_t myMaxTurnCurrent_cA;
-		bool myIsDirty;
 		uint16_t myCurrentUsage_cA;
 		uint32_t myLastSpeedChangeTime;
 
@@ -49,21 +51,25 @@ class MotorInterface
 
 		/**
 		 * returns wether the motor is running at the requested speed.
-		 * As we do not have a speed meter we wqait a while after we requested the speed. (slow start)
+		 * As we do not have a speed meter we wait a while after we requested the speed. (slow start)
 		 */
-		boolean isAtSpeed() const
-		{
-			return ((myRequestedSpeed == myActualSpeed) && (loopMillis - myLastSpeedChangeTime > 10000));
-		}
-		;
+		virtual bool isAtSpeed() const;
+		//JABA changed this to virtual as it should be virtual
+		//the original implementation (which will likely work is below
+//		{
+//			return ((myRequestedSpeed == myActualSpeed) && (loopMillis - myLastSpeedChangeTime > 10000));
+//		}
+
+		/**
+		 * is the motor stopped
+		 * returns true if the motor is stopped.
+		 * else returns false
+		 */
+		virtual bool isStopped() const;
 
 		SPEED_TYPE getActualSpeed() const
 		{
 			return myActualSpeed;
-		}
-		bool isDirty()
-		{
-			return myIsDirty;
 		}
 
 		/*
@@ -73,7 +79,6 @@ class MotorInterface
 		void setRequestedSpeed(int16_t Speed)
 		{
 			myNewRequestedSpeed = Speed;
-			myIsDirty = true;
 		}
 
 		int16_t getRequestedSpeed() const
