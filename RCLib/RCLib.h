@@ -22,8 +22,7 @@
  *      Author: Jantje
  */
 
-#ifndef RCLIB_H_
-#define RCLIB_H_
+#pragma once
 
 #include "Arduino.h"
 
@@ -198,14 +197,7 @@ uint8_t getChannelsReceiveInfo()
 	 {
 	   noInterrupts(); // turn interrupts off while we take local copies of the shared variables
 	   memcpy(RC_Channel_Value,(void*)SharedRCValue,sizeof(uint16_t)*NUM_RC_CHANNELS);
-//	   for(int i=0; i< NUM_RC_CHANNELS;i++)
-//		   {
-//		   Serial.print("shared :");
-//		   Serial.print(SharedRCValue[i]);
-//		   RC_Channel_Value[i]=SharedRCValue[i];
-//		   Serial.print(" local :");
-//		   Serial.println(RC_Channel_Value[i]);
-//		   }
+
 	   ret=SharedUpdateFlag;
 	   SharedUpdateFlag = 0;
 	   interrupts();
@@ -213,6 +205,3 @@ uint8_t getChannelsReceiveInfo()
 	 return ret;
 }
 
-
-
-#endif /* RCLIB_H_ */
