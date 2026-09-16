@@ -20,86 +20,90 @@
 #pragma once
 #include "Arduino.h"
 #include "MotorInterface.h"
+#include "CurrentSensorInterface.h"
 #define RESPONSE_DELAY_TIME 4
 #define BUSINESSEVENTSIZE 300
 #define STATE_SIZE 60
 const uint8_t STX= 2;
 const int maximumPermissibleResponseDelayTime = 1000;
 
+#define MESSAGETYPE_STOP_MOTOR 0
+#define MESSAGETYPE_START_MOTOR 1
+#define MESSAGETYPE_GET_STATUS 2
+#define MESSAGETYPE_START_V20_ENCHANTMENT 3
+#define MESSAGETYPE_CLEAR_ERROR_FLAGS 4
+#define MESSAGETYPE_SET_MOTOR_SPEED 5
+#define MESSAGETYPE_GET_CURRENT_USAGE 6
+#define MESSAGETYPE_NONE 10
+
+#define LOG_LEVEL_DETAIL_DEBUG  1
+#define LOG_LEVEL_DEBUG  2
+#define LOG_LEVEL_OPERATIONAL  3
+
+#define MINIMUM_SPEED 10
 
 
 
-class MotorModBusSiemensV20: public MotorInterface
+class MotorModBusSiemensV20: public MotorInterface, public  CurrentSensorInterface
 	{
 	private:
 		uint8_t mySlaveAddress=0;
+		uint8_t myLastMessageType =MESSAGETYPE_NONE;
+		uint32_t myKeepAliveInterval=600;
+		uint32_t myCurrentInterval =500;
+		uint32_t myResponseDelayTime=400;
+
+		bool myEnchantmentNeedsToBeSend=true;
+		bool myErrorFlagsNeedToBeCleared=true;
+		bool myMotorNeedsToTurnOff=true;
+		bool myMotorNeedsToTurnOn=false;
+		bool myIsWaitingForResponse=false;
 		uint32_t myLastMessageSendTime=0;
+		uint32_t myLastKeepAliveMessageSendTime=0;
+		uint32_t myLastCurentRequestMessageSendTime=0;
 		uint32_t myLastMessageRecievedTime=0;
-		uint32_t mySendInterval=2000;
-		uint32_t myResponseDelayTime=1000;
-		uint16_t myInverterState=3;
+		uint16_t myRPMSpeed=0;
+
 		Stream &mySerial;
+
+		uint8_t responseFromV20[255]; //TODO check Doc; 255 is probably way to big
+		int myAlreadyRead=0;
+
 
 		//log stuff
 		char myBusinessEvent[BUSINESSEVENTSIZE];
-		char myInverterStateDescription[STATE_SIZE];
-		//Serial stuff
-		bool myIsWaitingForResponse=false;
-		uint8_t mySerialInBuffer[255]; //TODO check Doc; 255 is probably way to big
-		int myAlreadyRead=0;
 
 	public :
 		MotorModBusSiemensV20(uint8_t slaveAddress,Stream &serial);
-		virtual ~MotorModBusSiemensV20(){};
+	//	virtual ~MotorModBusSiemensV20(){};
 		void loop();
 		void setup();
 		void motorOn();
 		void motorOff();
 		bool emergencyBreak();
+		virtual bool isAtSpeed() const;
+		virtual bool isStopped() const;
 
-		/** send a telegram message
-		 * returns an error code
-		 * 0 is all ok
-		 * 1 waiting for response (half duplex does not allow sending while waiting for response)
-		 */
-		int sendTelegram(uint8_t length,uint8_t message[]);
-		int requestInverterState();
-		int readHoldingRegisters(uint32_t adress,uint32_t numregisters);
+
 #ifdef I_USE_SERIAL_REGISTER
-		void serialRegister(const __FlashStringHelper* Name,const __FlashStringHelper* MotorName);
+		void serialRegister(const __FlashStringHelper* Name);
 #endif
 private:
-		void setConverterStateDescription() const;
 		void tryToParseRecievedMesage();
-		void addBusinessEventInfo(const __FlashStringHelper * info,bool newLine =true);
-		void addBusinessEventInfo(const char * info,bool newLine=true);
-
+		void parseCurrentResponse();
+		void addBusinessEventInfo(uint8_t level,const __FlashStringHelper * info,bool newLine =true);
+		void addBusinessEventInfo(uint8_t level,const char * info,bool newLine=true);
+		void sendWriteMultipleRegisters(uint16_t address,uint16_t value1);
+		void sendWriteMultipleRegisters(uint16_t address,uint16_t value1,uint16_t value2);
+		void sendWriteMultipleRegisters(uint16_t address,
+				uint16_t value1, uint16_t value2,uint16_t value3, uint16_t value4,uint16_t value5);
+		void sendReadMultipleRegisters(uint16_t address,uint16_t numberOfValuesToRead);
+		void sendWriteSingleRegisters(uint16_t address,uint16_t value1);
+		void sendKeepAliveRequest();
+		void sendStopRequest();
+		void sendStartRequest();
+		void sendSpeedChangeRequest();
+		void sendStartV20EnchantmentRequest1();
+		void sendClearErrorFlagsRequest();
+		void sendCurrentRequest();
 	};
-
-
-//THe stuff below is for USS protocol
-//
-//#define MASTER_ID_NO_REQUEST 0 //No request
-//#define MASTER_ID_PARAM_VALUE 1 // Request parameter value
-//#define MASTER_ID_MOD_PARAM_VALUE_WORD 2 //Modify parameter value (word)
-//#define MASTER_ID_MOD_PARAM_VALUEDOUBLE_WORD 3 // Modify parameter value (double word)
-//#define MASTER_ID_REQUEST_DESCRITIVE_VALUE 4 //Request descriptive element
-//#define MASTER_ID_REQUEST_PARAM_ARRAY_VALUE 6 //Request parameter value (array)
-//#define MASTER_ID_MOD_PARAM_ARRAY_VALUE_WORD 7 //Modify parameter value (array, word)
-//#define MASTER_ID_MOD_PARAM_ARRAY_VALUE_DOUBLE_WORD 8 //Modify parameter value (array, double word)
-//#define MASTER_ID_REQUEST_NUMBER_OF_ARRAY_ELEMENTS 9 //Request number of array elements
-//#define MASTER_ID_MOD_PARAM_ARRAY_VALUE_DOUBLE_WORD_EEPROM 11 //Modify parameter value (array, double word) and store in EEPROM
-//#define MASTER_ID_MOD_PARAM_ARRAY_VALUE_WORD_EEPROM 12 //Modify parameter value (array, word) and store in EEPROM
-//#define MASTER_ID_MOD_PARAM_VALUE_DOUBLE_WORD_EEPROM 13 //Modify parameter value (double word) and store in EEPROM
-//#define MASTER_ID_MOD_PARAM_VALUE_WORD_EEPROM 14 //Modify parameter value (word) and store in EEPROM
-//
-//#define SLAVE_ID_NO_RESPONSE 0 //No response
-//#define SLAVE_ID_TRANSFER_PARAMETER_VALUE 1 //Transfer parameter value (word)
-//#define SLAVE_ID_TRANSFER_PARAMETER_VALUE_DOUBLE_WORD 2 //Transfer parameter value (double word)
-//#define SLAVE_ID_TRANSFER_DESCRIPTIVE_ELEMENT 3 //Transfer descriptive element
-//#define SLAVE_ID_TRANSFER_PARAMETER_ARRAY 4 //Transfer parameter value (array, word)
-//#define SLAVE_ID_TRANSFER_PARAMETER_ARRAY_DOUBLE_WORD 5 //Transfer parameter value (array, double word)
-//#define SLAVE_ID_TRANSFER_NUMBER_OF_ARRAY_ELEMENTS 6 //Transfer number of array elements
-//#define SLAVE_ID_REQUEST_CAN_NOT_BE_PROCESSED 7 //Request cannot be processed, task cannot be executed (with error number)
-//#define SLAVE_ID_NO_MASTER_CONTROLLER_STATUS 8 //No master controller status/no parameter change rights for PKW interface
-
