@@ -19,15 +19,17 @@
  * 2) the registers you can read/write are not the same as the parameters.
  * You can find the registers on page 191 use the values in the converter column not the MODBUS column:-(
  * 3)if you do not get response messages from the sV20 Check parameters r2023 to r2031 on the converter
+ * 4) If you use sloeber and created a project based on a library delete the library folder as this code is not using the library
+ * 5) adjust the serial port and device address below to your setup
  */
 
 
 #define DEVICE_ADDRESS 1 //The number you told the V20 is on the bus (default 1)
-
+#define SIEMENS_SERIAL Serial5 //Set the serial port used to communicate with Siemens V20
 //The 3 function codes
-#define FUNCTION_CODE_WRITE_MULTIPLE_REGISTERS 16
-#define FUNCTION_CODE_WRITE_SINGLE_REGISTER 6
-#define FUNCTION_CODE_READ_HOLDING_REGISTERS 3
+#define FUNCTION_CODE_WRITE_MULTIPLE_REGISTERS 0x10
+#define FUNCTION_CODE_WRITE_SINGLE_REGISTER 0x06
+#define FUNCTION_CODE_READ_HOLDING_REGISTERS 0x03
 
 //Important addresses
 #define ADDRESS_STW	99	//read write;
@@ -64,7 +66,7 @@ unsigned int crc_16(unsigned int length, unsigned char *buffer)
 bool sendMessage(uint8_t *message, uint8_t messageLength, uint16_t delayBeforRead)
 	{
 		//send the message
-		Serial1.write(message, messageLength);
+	SIEMENS_SERIAL.write(message, messageLength);
 		//write to serial
 		Serial.println("");
 		Serial.print("send :");
@@ -80,9 +82,9 @@ bool sendMessage(uint8_t *message, uint8_t messageLength, uint16_t delayBeforRea
 		//read the response and write it to serial
 		uint8_t response[3];
 		uint8_t readindex = 0;
-		while (Serial1.available() > 0)
+		while (SIEMENS_SERIAL.available() > 0)
 			{
-				Serial1.readBytes(response + readindex, 1);
+				SIEMENS_SERIAL.readBytes(response + readindex, 1);
 				Serial.print(response[readindex], HEX);
 				Serial.print(' ');
 				readindex++;
@@ -101,7 +103,7 @@ void setup()
 		delay(500); //allow some time for me to control the serial monitor and handle the V20 error state
 		Serial.begin(115200);
 		Serial.println(mySketchName);
-		Serial1.begin(9600, SERIAL_8E1);
+		SIEMENS_SERIAL.begin(9600, SERIAL_8E1);
 
 	}
 
@@ -115,6 +117,7 @@ void loop()
 
 		uint16_t numberOfValues = 2;
 		uint8_t numberOfbytes = numberOfValues * 2;
+		uint16_t runFrequency=1000;
 
 		uint16_t stopFrequency = 0;
 		uint8_t stopMotorMessageLength = 9 + numberOfbytes;
@@ -187,7 +190,7 @@ void loop()
 		sendMessage(readPowerConsumptionMessage, readPowerConsumptionMessageLength, delayBeforRead);
 		if (status == 0)
 			{ //reset V20 to clear error caused by uploading sketch while already connected to V20
-				if (sendMessage(resetV20Message, resetV20MessageLength, 3000))
+				//²if (sendMessage(resetV20Message, resetV20MessageLength, 3000))
 					{ // switch to stopping after successful reset
 						status = 1;
 						Serial.println("-------------------------------->Stopping the motor");

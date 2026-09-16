@@ -10,7 +10,7 @@
  * When the define is set there will be less calls to millis() which
  * will speed up the code
  *
- * did not get the maximum time spend during a loop to read the 3 sensors
+ * I got the maximum time spend during a loop to read the 3 sensors
  * below 18 millis. If you hit numbers bigger than 20 consider to define
  * MAX_MILLIS_IN_LOOP_TO_START as 15 (this way there will never be 2 wire calls in the same loop)
  *
