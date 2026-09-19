@@ -614,12 +614,8 @@ void MotorModBusSiemensV20::serialRegister(const __FlashStringHelper* Name) {
 	FieldData::set(Name, F("Current_cA"), MOD_NONE, &myCentiAmp);
 	FieldData::set(Name, F("BusinessEvent"), MOD_ERASE_ON_DUMP | MOD_OVERVIEW,
 			myBusinessEvent);
-	FieldData::set(Name, F("SlaveAddress"), MOD_WRITE | MOD_SAVE,
-			&mySlaveAddress);
-	FieldData::set(Name, F("KeepAliveInterval"), MOD_WRITE | MOD_SAVE,
-			&myKeepAliveInterval);
-	FieldData::set(Name, F("ResponseDelayTime"), MOD_WRITE | MOD_SAVE,
-			&myResponseDelayTime);
+	FieldData::set(Name, F("myRPMSpeed"), MOD_NONE,
+			&myRPMSpeed);
 #define DETAILED_LOGGING
 #ifdef DETAILED_LOGGING
 	FieldData::set(Name, F("IsWaitingForResponse"), MOD_OVERVIEW,
@@ -628,8 +624,12 @@ void MotorModBusSiemensV20::serialRegister(const __FlashStringHelper* Name) {
 			&myLastMessageSendTime);
 	FieldData::set(Name, F("LastMessageRecievedTime"), MOD_NONE,
 			&myLastMessageRecievedTime);
-	FieldData::set(Name, F("myRPMSpeed"), MOD_NONE,
-			&myRPMSpeed);
+	FieldData::set(Name, F("SlaveAddress"), MOD_WRITE | MOD_SAVE,
+			&mySlaveAddress);
+	FieldData::set(Name, F("KeepAliveInterval"), MOD_WRITE | MOD_SAVE,
+			&myKeepAliveInterval);
+	FieldData::set(Name, F("ResponseDelayTime"), MOD_WRITE | MOD_SAVE,
+			&myResponseDelayTime);
 #endif
 }
 #endif
