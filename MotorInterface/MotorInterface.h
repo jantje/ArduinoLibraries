@@ -19,12 +19,44 @@
 class MotorInterface
 {
 	protected:
-		SPEED_TYPE myRequestedSpeed;
-		SPEED_TYPE myNewRequestedSpeed;
-		SPEED_TYPE myActualSpeed;
-		uint16_t myMaxTurnCurrent_cA;
-		uint16_t myCurrentUsage_cA;
-		uint32_t myLastSpeedChangeTime;
+	   /**
+	    * The speeds works as follows:
+	    * - myNewRequestedSpeed is changed when setRequestedSpeed is called
+	    * - myRequestedSpeed is the speed we currently think is requested
+	    * - myActualSpeed is the speed we asked the motor to run
+	    * To tell it like a story:
+	    * If the motor is stopped
+	    * myNewRequestedSpeed=myRequestedSpeed=myActualSpeed=0
+	    * If then a speed is set (lets assume that is 200) and loop is called
+	    * The code can see a speed change has been requested because
+	    * myNewRequestedSpeed is different from myRequestedSpeed
+	    * It also knows it was at the requested speed before because
+	    *  myRequestedSpeed = myActualSpeed (in this case 0)
+	    *
+	    * The code can then (with or without a delay) start the motor
+	    * But it may prefer a slow start (for instance 100)
+	    * At that point
+	    *  myNewRequestedSpeed==myRequestedSpeed==200
+	    *  myActualSpeed=100
+	    * myLastSpeedChangeTime is set millis
+	    *
+	    * Later when loop is called again the code can
+	    * see the motor is not yet at speed because
+	    * myRequestedSpeed==200 and myActualSpeed=100 are different
+	    * Based on myLastSpeedChangeTime it knows when is the time
+	    * to increase the actual speed
+	    * When it is time to increase the motor speed (fi to 200)
+	    * myNewRequestedSpeed==myRequestedSpeed==myActualSpeed==200
+	    * We also need to set myLastSpeedChangeTime to millis
+	    * At this point we know we are "at speed" since myLastSpeedChangeTime
+	    *
+	    */
+		SPEED_TYPE myRequestedSpeed=0; //see comment above
+		SPEED_TYPE myNewRequestedSpeed=0; //see comment above
+		SPEED_TYPE myActualSpeed=0; //see comment above
+		uint16_t myMaxTurnCurrent_cA=0;
+		uint16_t myCurrentUsage_cA=0;
+		uint32_t myLastSpeedChangeTime=0; //see comment above
 
 	public:
 		virtual void loop()=0;
