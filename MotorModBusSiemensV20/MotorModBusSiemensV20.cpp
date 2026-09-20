@@ -520,7 +520,7 @@ uint16_t getdirection(SPEED_TYPE requestedSpeed) {
 void MotorModBusSiemensV20::sendStopRequest() {
 	addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending stop request"), true);
 	myLastMessageType = MESSAGETYPE_STOP_MOTOR;
-	myRequestedSpeed = myNewRequestedSpeed;
+	myActualSpeed=0;
 	sendWriteMultipleRegisters(FREQREGISTER, 0,
 	RUN_DISABLE_FLAG, getdirection(myRequestedSpeed),
 	STOP_COMMAND_FLAG,
@@ -530,7 +530,7 @@ void MotorModBusSiemensV20::sendStopRequest() {
 void MotorModBusSiemensV20::sendStartRequest() {
 	addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending start request"), true);
 	myLastMessageType = MESSAGETYPE_START_MOTOR;
-	myRequestedSpeed = myNewRequestedSpeed;
+	myActualSpeed=myRequestedSpeed = myNewRequestedSpeed;
 	sendWriteMultipleRegisters(FREQREGISTER, getSpeedInCentiHerz(myRequestedSpeed),
 	RUN_ENABLE_FLAG, getdirection(myRequestedSpeed),
 	START_COMMAND_FLAG,
@@ -542,6 +542,7 @@ void MotorModBusSiemensV20::sendSpeedChangeRequest() {
 			true);
 	myLastMessageType = MESSAGETYPE_SET_MOTOR_SPEED;
 	myRequestedSpeed = myNewRequestedSpeed;
+	myActualSpeed=myRequestedSpeed;
 	sendWriteMultipleRegisters(FREQREGISTER, getSpeedInCentiHerz(myRequestedSpeed),
 	RUN_ENABLE_FLAG, getdirection(myRequestedSpeed), START_COMMAND_FLAG,
 	FAULT_ACKNOWELDGEMENT_FLAG);
@@ -618,7 +619,8 @@ void MotorModBusSiemensV20::serialRegister(const __FlashStringHelper* Name) {
 			&myRPMSpeed);
 #define DETAILED_LOGGING
 #ifdef DETAILED_LOGGING
-	FieldData::set(Name, F("IsWaitingForResponse"), MOD_OVERVIEW,
+	FieldData::set(Name, F("myActualSpeed"), MOD_NONE, &myActualSpeed);
+	FieldData::set(Name, F("IsWaitingForResponse"), MOD_NONE,
 			&myIsWaitingForResponse);
 	FieldData::set(Name, F("LastMessageSendTime"), MOD_NONE,
 			&myLastMessageSendTime);
