@@ -221,7 +221,7 @@ void GPSModule::parseGPRMCMessage()
 			}
 			p++;
 		}
-		//The speed is in knots (1.852 km per hour = 1852 m per hour) so calculate to m/hour
+		//The speed is in knots (1 knot = 1.852 km per hour = 1852 m per hour) so calculate to m/hour
 		m_LastMessageSpeed = m_LastMessageSpeed * 1852 * Power;
 		p += 1;
 		Power = 1000;
