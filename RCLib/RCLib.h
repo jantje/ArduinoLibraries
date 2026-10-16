@@ -25,13 +25,17 @@
 #pragma once
 
 #include "Arduino.h"
+#ifdef I_USE_SERIAL_REGISTER
+#include "SerialDataInterface.h"
+#endif
 
 
-// holds the update flags of the channels
+
+// holds the volitile update flags of the channels
 volatile uint8_t SharedUpdateFlag=0;
 volatile uint16_t SharedRCValue[NUM_RC_CHANNELS];
 
-
+uint16_t RC_Channel_Value[NUM_RC_CHANNELS];
 
 #ifdef ARDUINO_AVR_MEGA2560
 #warning "If the used board is not a mega there is a problem"
@@ -162,7 +166,7 @@ void SetRCInterrupts()
 	 ATTACHEINTERRUPT(GETINTERRUPT(6), RC_Channel6_interrupt,CHANGE);
 		 #if NUM_RC_CHANNELS >7
 	 ATTACHEINTERRUPT(GETINTERRUPT(7), RC_Channel7_interrupt,CHANGE);
-		 #if NUM_RC_CHANNELS >7
+		 #if NUM_RC_CHANNELS >8
 		 #error "This code only support 8 interrupts"
 		 #endif
 		 #endif
@@ -204,4 +208,55 @@ uint8_t getChannelsReceiveInfo()
 	 }
 	 return ret;
 }
+
+class RCLib {
+public:
+	RCLib(){};
+	virtual ~RCLib(){};
+	void setup(){SetRCInterrupts();};
+	void setDelayBetweenReads(uint32_t newReadDelay){
+		myReadDelay=newReadDelay;
+	};
+	/**
+	 * returns true when a channel value has been updated
+	 */
+	boolean loop(){
+#ifndef I_USE_LOOP_MILLIS
+		uint32_t myLoopMillis=millis();
+#endif
+		if(myLoopMillis-myLastAction>myReadDelay){
+			myLastAction =myLoopMillis;
+			return getChannelsReceiveInfo()!= 0;
+		}
+		return false;
+	};
+	uint16_t* getChannelValues(){return  RC_Channel_Value;} ;
+	uint8_t getNumChannels(){return NUM_RC_CHANNELS;};
+#ifdef I_USE_SERIAL_REGISTER
+	void serialRegister(const __FlashStringHelper* Name){
+
+		for(int curchannel=0;curchannel<NUM_RC_CHANNELS;curchannel++){
+		FieldData::set(Name, F("channel"),0,&RC_Channel_Value[curchannel]);
+		}
+
+	//#define DETAILED_RC_CLASS_LOGGING in header file to activate this code
+	#ifdef DETAILED_RC_CLASS_LOGGING
+		FieldData::set(Name, F("Loopduration"),0,&myLoopduration);
+	#endif
+	}
+#endif
+
+private:
+	uint32_t myLastAction=0;
+	uint32_t myReadDelay=10;
+
+#ifdef I_USE_SERIAL_REGISTER
+//#define DETAILED_RC_CLASS_LOGGING
+#ifdef DETAILED_RC_CLASS_LOGGING
+	uint32_t myLoopduration = 0;
+#endif
+#endif
+};
+
+
 
