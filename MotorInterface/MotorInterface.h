@@ -57,12 +57,21 @@ class MotorInterface
 		uint16_t myMaxTurnCurrent_cA=0;
 		uint16_t myCurrentUsage_cA=0;
 		uint32_t myLastSpeedChangeTime=0; //see comment above
+		const char* myName;
 
 	public:
+		MotorInterface(const char* name){
+			myName=name;
+		}
+		MotorInterface(){
+			myName="no name provided";
+		}
 		virtual void loop()=0;
 		virtual void setup()=0;
 		virtual void motorOn()=0;
 		virtual void motorOff()=0;
+
+		const char * getName(){return myName;};
 
 		/**
 		 * EmergencyBreak stops the drive engines directly powering the coils

@@ -36,7 +36,7 @@ extern uint32_t loopMillis;
 #define PRINT_MESSAGE(intro,message,messageLength)
 #endif
 
-unsigned int crc_16(unsigned int length, unsigned char *buffer) {
+static unsigned int crc_16(unsigned int length, unsigned char *buffer) {
 	unsigned int i, j, temp_bit, temp_int, crc;
 	crc = 0xFFFF;
 	for (i = 0; i < length; i++) {
@@ -243,7 +243,7 @@ void MotorModBusSiemensV20::loop() {
 					F("MESSAGETYPE_START_MOTOR"), true);
 			break;
 		}
-		case MESSAGETYPE_GET_STATUS: {
+		case MESSAGETYPE_WATCHDOG: {
 			addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
 					F("MESSAGETYPE_GET_STATUS"), true);
 			break;
@@ -430,7 +430,7 @@ void MotorModBusSiemensV20::tryToParseRecievedMesage() {
 	case MESSAGETYPE_START_MOTOR:
 		myMotorNeedsToTurnOn = false;
 		break;
-	case MESSAGETYPE_GET_STATUS:
+	case MESSAGETYPE_WATCHDOG:
 		break;
 	case MESSAGETYPE_START_V20_ENCHANTMENT:
 		myEnchantmentNeedsToBeSend = false;
@@ -574,7 +574,7 @@ void MotorModBusSiemensV20::sendClearErrorFlagsRequest() {
  */
 void MotorModBusSiemensV20::sendKeepAliveRequest() {
 	addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending state request"), true);
-	myLastMessageType = MESSAGETYPE_GET_STATUS;
+	myLastMessageType = MESSAGETYPE_WATCHDOG;
 	sendReadMultipleRegisters(0, 12);
 }
 
