@@ -155,7 +155,6 @@ void ModBusMaster::loop() {
 		myAlreadyRead += numBytesAvailable;
 		//make it a null terminated string
 		myResponseFromV20[myAlreadyRead] = 0;
-		PRINT_MESSAGE("recieving :",myResponseFromV20,myAlreadyRead);
 #ifdef DEBUG_SIEMENS_V20_SERIAL
 		Serial.println("recieved from Siemens V20");
 		for (int i = 0; i < myAlreadyRead; i++) {
@@ -205,12 +204,10 @@ void ModBusMaster::loop() {
 		//we can send a message => check to see who wants to send a mesage
 		int numSlavesProsessed = 0;
 		do {
-			//Serial.print("querying channel ");
-			//Serial.println(myCurModbudClient->myNode.getChannelID());
+			myCurModbudClient = myCurModbudClient->myNext;
 			if (sendMessageToSlave(myCurModbudClient->myNode)) {
 				return;
 			}
-			myCurModbudClient = myCurModbudClient->myNext;
 			numSlavesProsessed++;
 		} while (numSlavesProsessed < myNumSlaves);
 	}

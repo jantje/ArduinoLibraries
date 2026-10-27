@@ -13,46 +13,50 @@ extern ModBusSlaveSiemensV20 modBusMotor_2;
 extern ModBusSlaveSiemensV20 modBusMotor_3;
 #endif
 #endif
+static uint32_t loopMillis;
 void Brains::setup(){
-	myMotor1LastAction=myMotor2LastAction=myMotor3LastAction=millis();
-
-
 }
-void motorChange(uint32_t loopmilis,ModBusSlaveSiemensV20 &motor,uint32_t *lastChange){
-	static int status = 1;
-	if (loopmilis - *lastChange > 5000) {
-		*lastChange = loopmilis;
+int motorChange(ModBusSlaveSiemensV20 &motor,uint32_t *lastChange,int status){
+	if(loopMillis<(*lastChange)){
+		return status;
+	}
+	if (loopMillis - (*lastChange) > 5000) {
+		(*lastChange) = loopMillis;
 		switch (status) {
 		case 1:
-			Serial.println("Setting speed to 100");
+			Serial.print(motor.getName());
+			Serial.println(" Setting speed to 100");
 			motor.motorOn();
 			motor.setRequestedSpeed(100);
-			status = 2;
-			break;
+			return 2;
 		case 2:
+			Serial.print(motor.getName());
 			Serial.println("Stopping motor");
 			motor.motorOff();
-			status = 3;
-			break;
+			return 3;
 		case 3:
+			Serial.print(motor.getName());
 			Serial.println("Setting speed to -100");
 			motor.setRequestedSpeed(-100);
 			motor.motorOn();
-			status = 4;
-			break;
+			return 4;
 		case 4:
+			Serial.print(motor.getName());
 			Serial.println("Stopping motor");
 			motor.motorOff();
-			status = 1;
-			break;
+			return 1;
 		}
 	}
+	return status;
 }
 
 MOTOR_STATE reportMotorStateChange(ModBusSlaveSiemensV20 &motor,MOTOR_STATE prefState){
 	MOTOR_STATE curstate = motor.getState();
 	if(curstate!=prefState){
+		Serial.print("Brains ");
 		Serial.print(motor.getName());
+		Serial.print(" ");
+		Serial.print(loopMillis);
 		Serial.print(" changed from state ");
 		Serial.print(getMotorStateName(prefState));
 		Serial.print(" to state ");
@@ -62,19 +66,22 @@ MOTOR_STATE reportMotorStateChange(ModBusSlaveSiemensV20 &motor,MOTOR_STATE pref
 	return curstate;
 }
 void Brains::loop(){
-	uint32_t loopMillis=millis();
-	motorChange(loopMillis,modBusMotor_1,&myMotor1LastAction);
+	loopMillis=millis();
+	static int motor1State=1;
+	motor1State=motorChange(modBusMotor_1,&myMotor1LastAction,motor1State);
 #if NUM_MOTORS>1
-	motorChange(loopMillis,modBusMotor_2,&myMotor2LastAction);
+	static int motor2State=1;
+	motor2State=motorChange(modBusMotor_2,&myMotor2LastAction,motor2State);
 #if NUM_MOTORS>2
-	motorChange(loopMillis,modBusMotor_3,&myMotor3LastAction);
+	static int motor3State=1;
+	motor3State=motorChange(modBusMotor_3,&myMotor3LastAction,motor3State);
 #endif
 #endif
 	myMotor1State = reportMotorStateChange(modBusMotor_1,myMotor1State);
 #if NUM_MOTORS>1
-	reportMotorStateChange(loopMillis,modBusMotor_2,&myMotor2LastAction);
+	myMotor2State = reportMotorStateChange(modBusMotor_2,myMotor2State);
 #if NUM_MOTORS>2
-	reportMotorStateChange(loopMillis,modBusMotor_3,&myMotor3LastAction);
+	myMotor3State = reportMotorStateChange(modBusMotor_3,myMotor3State);
 #endif
 #endif
 

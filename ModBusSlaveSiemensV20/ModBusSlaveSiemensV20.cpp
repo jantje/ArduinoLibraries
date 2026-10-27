@@ -70,8 +70,7 @@ void ModBusSlaveSiemensV20::loop() {
 	}
 	if (loopMillis - myLastResponseRecieved > getWatchDogTime()) {
 		// the siemens controller must have timed out by now
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				"watchdog time has reached");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,	"watchdog time has reached");
 		switchToState(MOTOR_ERROR);
 	}
 
@@ -274,49 +273,36 @@ void ModBusSlaveSiemensV20::responseOnLastMessage(uint8_t numRegisters,
 	case MESSAGETYPE_STOP_MOTOR:
 		myMotorNeedsToTurnOff = false;
 		switchToState(MOTOR_STOPPED);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL, myName, false);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				" stop response message processed");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,	"stop response message processed");
 
 		break;
 	case MESSAGETYPE_START_MOTOR:
 		myMotorNeedsToTurnOn = false;
 		switchToState(MOTOR_RUNNING);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL, myName, false);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				" start running response message processed");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,"start running response message processed");
 		break;
 	case MESSAGETYPE_WATCHDOG:
 		myWatchdogRequestNeeded = false;
 		myLastWatchdogSendTime = loopMillis;
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL, myName, false);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				" get status response message processed");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,"watchdog message processed");
 		break;
 	case MESSAGETYPE_START_V20_ENCHANTMENT:
 		myEnchantmentNeedsToBeSend = false;
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL, myName, false);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				" enchantement response message processed");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,"enchantement response message processed");
 		break;
 	case MESSAGETYPE_CLEAR_ERROR_FLAGS:
 		myErrorFlagsNeedToBeCleared = false;
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL, myName, false);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				" clear error flags message processed");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,"clear error flags message processed");
 		break;
 	case MESSAGETYPE_SET_MOTOR_SPEED:
 		myMotorNeedsSpeedChange = false;
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL, myName, false);
-		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-				" set speed response message processed");
+		addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,"set speed response message processed");
 		break;
 	case MESSAGETYPE_GET_CURRENT_USAGE:
 		myCurentRequestNeeded = false;
 		myLastCurentRequestMessageSendTime = loopMillis;
 		if (numRegisters != 2) {
-			addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,
-					F("Current request returned wrong number of values"));
+			addBusinessEventInfo(LOG_LEVEL_OPERATIONAL,"Current request returned wrong number of values");
 			Serial.println(numRegisters);
 		} else {
 			myRPMSpeed = registerValues[0];
@@ -326,8 +312,7 @@ void ModBusSlaveSiemensV20::responseOnLastMessage(uint8_t numRegisters,
 			}
 			myAvgCentiAmp = myCentiAmp;
 		}
-		addBusinessEventInfo(LOG_LEVEL_DEBUG,
-				" get current usage response message processed");
+		addBusinessEventInfo(LOG_LEVEL_DEBUG,"get current usage response message processed");
 		break;
 	case MESSAGETYPE_NONE:
 		break;
@@ -336,20 +321,20 @@ void ModBusSlaveSiemensV20::responseOnLastMessage(uint8_t numRegisters,
 
 bool ModBusSlaveSiemensV20::hasFC3ReadHoldingRegistersRequest(
 		uint16_t *startAddress, uint16_t *numberOfRegister) {
-	if (myEnchantmentNeedsToBeSend || myErrorFlagsNeedToBeCleared) {
+	if (myEnchantmentNeedsToBeSend || myErrorFlagsNeedToBeCleared
+			||myMotorNeedsToTurnOn ||myMotorNeedsToTurnOff
+			||myMotorNeedsSpeedChange) {
 		return false;
 	}
 	if (myWatchdogRequestNeeded) {
-		addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending watchdog request"),
-				true);
+		addBusinessEventInfo(LOG_LEVEL_DEBUG, "Sending watchdog request");
 		myLastMessageType = MESSAGETYPE_WATCHDOG;
 		*startAddress = 0;
 		*numberOfRegister = 12;
 		return true;
 	}
 	if (myCurentRequestNeeded) {
-		addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending current request"),
-				true);
+		addBusinessEventInfo(LOG_LEVEL_DEBUG, "Sending current request");
 		myLastMessageType = MESSAGETYPE_GET_CURRENT_USAGE;
 		*startAddress = 24;
 		*numberOfRegister = 2;
@@ -365,7 +350,7 @@ bool ModBusSlaveSiemensV20::hasFC16WriteMultipleRegisterRequest(
 		return false;
 	}
 	if (myMotorNeedsToTurnOn) {
-		addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending start request"), true);
+		addBusinessEventInfo(LOG_LEVEL_DEBUG, "Sending start request");
 		myLastMessageType = MESSAGETYPE_START_MOTOR;
 		myActualSpeed = myRequestedSpeed = myNewRequestedSpeed;
 		*startAddress = FREQREGISTER;
@@ -378,7 +363,7 @@ bool ModBusSlaveSiemensV20::hasFC16WriteMultipleRegisterRequest(
 		return true;
 	}
 	if (myMotorNeedsToTurnOff) {
-		addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending stop request"), true);
+		addBusinessEventInfo(LOG_LEVEL_DEBUG, "Sending stop request");
 		myLastMessageType = MESSAGETYPE_STOP_MOTOR;
 		myActualSpeed = 0;
 		*startAddress = FREQREGISTER;
@@ -391,8 +376,7 @@ bool ModBusSlaveSiemensV20::hasFC16WriteMultipleRegisterRequest(
 		return true;
 	}
 	if (myMotorNeedsSpeedChange) {
-		addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending speed change request"),
-				true);
+		addBusinessEventInfo(LOG_LEVEL_DEBUG, "Sending speed change request");
 		myLastMessageType = MESSAGETYPE_SET_MOTOR_SPEED;
 		*startAddress = FREQREGISTER;
 		*NumberOfValues = 5;
@@ -416,16 +400,14 @@ bool ModBusSlaveSiemensV20::hasFC6WriteSingleRegisterRequest(uint16_t *address,
 		 * Which means that a start/stop of the V20 requires this message to be send
 		 * The V20 simply does not start the motor
 		 */
-		addBusinessEventInfo(LOG_LEVEL_DEBUG,
-				F("Sending start v20 enchantment request"));
+		addBusinessEventInfo(LOG_LEVEL_DEBUG,"Sending start v20 enchantment request");
 		myLastMessageType = MESSAGETYPE_START_V20_ENCHANTMENT;
 		*address = ADDRESS_STW;
 		*value = 0x047E; 	//		uint16_t stopMotor = 0x047E;
 		return true;
 	}
 	if (myErrorFlagsNeedToBeCleared) {
-		addBusinessEventInfo(LOG_LEVEL_DEBUG, F("Sending clear flags request"),
-				true);
+		addBusinessEventInfo(LOG_LEVEL_DEBUG, "Sending clear flags request");
 		myLastMessageType = MESSAGETYPE_CLEAR_ERROR_FLAGS;
 		*address = FAULTREGISTER;
 		*value = FAULT_ACKNOWELDGEMENT_FLAG;

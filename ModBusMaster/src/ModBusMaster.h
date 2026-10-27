@@ -36,7 +36,7 @@ private:
 	Stream &mySerial;
 	long myBaudRate;
 	uint32_t myDelayBetweenMesages;
-	uint32_t myResponseDelayTime = 400;
+	uint32_t myResponseDelayTime = 100;
 	class linkedClients {
 	public:
 		linkedClients(ModBusSlaveInterface &node, linkedClients *next) :
