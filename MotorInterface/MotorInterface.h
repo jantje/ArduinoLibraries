@@ -15,6 +15,10 @@
    extern uint32_t loopMillis;
 #endif
 
+   typedef enum
+   {
+   	MOTOR_STOPPED, MOTOR_RUNNING, MOTOR_ERROR , MOTOR_BOOTING
+   } MOTOR_STATE;
 
 class MotorInterface
 {
@@ -58,6 +62,7 @@ class MotorInterface
 		uint16_t myCurrentUsage_cA=0;
 		uint32_t myLastSpeedChangeTime=0; //see comment above
 		const char* myName;
+		MOTOR_STATE myState=MOTOR_BOOTING;
 
 	public:
 		MotorInterface(const char* name){
@@ -130,6 +135,21 @@ class MotorInterface
 		uint16_t getCurrentUsage_cA() const
 		{
 			return myCurrentUsage_cA;
+		}
+		MOTOR_STATE getState(){return myState;};
+
+		static const char * getMotorStateName(MOTOR_STATE state){
+			switch (state) {
+			case MOTOR_STOPPED:
+				return "Motor stopped";
+			case MOTOR_RUNNING:
+				return "Motor running";
+			case MOTOR_ERROR:
+				return "Motor error";
+			case MOTOR_BOOTING:
+				return "motor booting";
+			}
+			return "Unknown motor state";
 		}
 
 		virtual ~MotorInterface()=default;

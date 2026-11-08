@@ -421,17 +421,3 @@ bool ModBusSlaveSiemensV20::retryFailedSend() {
 	return false;
 }
 
-const char* getMotorStateName(MOTOR_STATE state) {
-	switch (state) {
-	case MOTOR_STOPPED:
-		return "Motor stopped";
-	case MOTOR_RUNNING:
-		return "Motor running";
-	case MOTOR_ERROR:
-		return "Motor error";
-	case MOTOR_BOOTING:
-		return "motor booting";
-	}
-	return "Unknown motor state";
-
-}

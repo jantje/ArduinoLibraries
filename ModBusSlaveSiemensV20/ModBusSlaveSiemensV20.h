@@ -40,12 +40,6 @@
 #define LOG_LEVEL_OPERATIONAL  3
 
 #define MINIMUM_SPEED 10
-typedef enum
-{
-	MOTOR_STOPPED, MOTOR_RUNNING, MOTOR_ERROR , MOTOR_BOOTING
-} MOTOR_STATE;
-
-const char * getMotorStateName(MOTOR_STATE);
 
 
 class ModBusSlaveSiemensV20: public MotorInterface, public  CurrentSensorInterface, public ModBusSlaveInterface
@@ -73,7 +67,7 @@ class ModBusSlaveSiemensV20: public MotorInterface, public  CurrentSensorInterfa
 		bool myCurentRequestNeeded=false;
 		bool myWatchdogRequestNeeded=false;
 
-		MOTOR_STATE myState=MOTOR_BOOTING;
+
 		//Number of failed sends since last successful Send
 		uint16_t myFailedSends=0;
 		//last time a successful response was received
@@ -95,7 +89,7 @@ class ModBusSlaveSiemensV20: public MotorInterface, public  CurrentSensorInterfa
 		void motorOn();
 		void motorOff();
 		bool emergencyBreak();
-		MOTOR_STATE getState(){return myState;};
+
 		virtual bool isAtSpeed() const;
 		virtual bool isStopped() const;
 		virtual void responseOnLastMessage(uint8_t numRegisters,uint16_t registerValues[]);
