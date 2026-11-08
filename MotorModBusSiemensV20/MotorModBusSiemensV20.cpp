@@ -506,14 +506,14 @@ void MotorModBusSiemensV20::addBusinessEventInfo(uint8_t level,
 #define FAULT_ACKNOWELDGEMENT_FLAG (uint16_t)1
 #define NO_FAULT_ACKNOWELDGEMENT_FLAG (uint16_t)0
 
-uint16_t getSpeedInCentiHerz(SPEED_TYPE requestedSpeed) {
+static uint16_t getSpeedInCentiHerz(SPEED_TYPE requestedSpeed) {
 	if (abs(requestedSpeed) < MINIMUM_SPEED) {
 		return 0;
 	}
 	uint16_t ret = map(abs(requestedSpeed), 0, 255, 0, 10000);
 	return ret;
 }
-uint16_t getdirection(SPEED_TYPE requestedSpeed) {
+static uint16_t getdirection(SPEED_TYPE requestedSpeed) {
 	return requestedSpeed > 0 ? 1 : 0;
 }
 
