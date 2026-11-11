@@ -75,6 +75,13 @@ class MotorInterface
 		virtual void setup()=0;
 		virtual void motorOn()=0;
 		virtual void motorOff()=0;
+		virtual void motorOnOff(bool onOff){
+			if(onOff){
+				motorOn();
+			}else{
+				motorOff();
+			}
+		}
 
 		const char * getName(){return myName;};
 
@@ -122,12 +129,12 @@ class MotorInterface
 		 * SetSpeed changes the speed of the motor.
 		 * The speed is changed in small steps.
 		 */
-		void setRequestedSpeed(int16_t Speed)
+		void setRequestedSpeed(SPEED_TYPE Speed)
 		{
 			myNewRequestedSpeed = Speed;
 		}
 
-		int16_t getRequestedSpeed() const
+		SPEED_TYPE getRequestedSpeed() const
 		{
 			return myNewRequestedSpeed;
 		}
